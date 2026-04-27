@@ -43,6 +43,15 @@ func First[T any](xs []T) T {
 	return xs[0]
 }
 
+// Generic function with union of types
+func second[T string | int](xs []T) T {
+	var zero T
+	if len(xs) == 0 {
+		return zero
+	}
+	return xs[0]
+}
+
 // comparable for == support
 func IndexOf[T comparable](xs []T, target T) int {
 	for i, v := range xs {

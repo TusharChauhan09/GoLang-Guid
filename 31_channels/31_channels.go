@@ -51,12 +51,58 @@ func consumer(ch <-chan int, done chan<- struct{}) {
 }
 
 func main() {
-	// Unbuffered: synchronous
-	ch := make(chan int)
-	go func() { ch <- 42 }()
-	fmt.Println(<-ch) // receives 42
+	
+	// ! channels 
 
-	// Producer/consumer with range and close
+	// ! with goroutine
+	// a. Unbuffered: synchronous | send blocks until another goroutine receives. Synchronizes the two.
+	ch := make(chan int)
+	go func() { ch <- 42 }()  // different goroutine sends so no blocking here
+	fmt.Println(<-ch) // receives 42  // receiver blocks until sender sends 
+
+	// ! channels without gorotine in unbuffered case will deadlock
+	// cha := make(chan int) 
+	// cha <- 42  // blocks the current gorotine gor forever (no receiver) 
+	// fmt.Println(<-cha)
+
+
+
+	// ! Channel types: unbuffered vs buffered
+	// ? unbuffered channel
+	ch1 := make(chan int)
+	go func() {
+		ch1 <- 1
+		ch1 <- 2
+		ch1 <- 3
+	}()
+	fmt.Println(<-ch1) // 1
+	fmt.Println(<-ch1) // 2
+	fmt.Println(<-ch1) // 3
+	// fmt.Println(<-ch1) // blocks (no more sends)
+
+
+	// Note:
+	// 	it looks like 3 values are sent "at once", but they're not.
+	// Because in an unbuffered channel, each send blocks until a receive happens
+
+
+	//? b. buffered: synchronous | send blocks only if buffer full, receive blocks only if buffer empty
+	// it is a FIFO queue
+	buf := make(chan int, 2)
+	buf <- 1
+	buf <- 2
+	// buf <- 3 // blocks (buffer full)
+	fmt.Println(<-buf) // 1
+	fmt.Println(<-buf) // 2
+	// fmt.Println(<-buf) // blocks (buffer empty)
+
+	// Note: 
+	// you can send up to 2 values without any receiver
+
+
+
+
+	// ! Producer/consumer with range and close
 	data := make(chan int)
 	done := make(chan struct{})
 	go producer(data, 5)
@@ -88,4 +134,15 @@ func main() {
 	// closed := make(chan int)
 	// close(closed)
 	// closed <- 1 // PANIC
+
+
+	// waiting gorutines  using channels
+
+	// Anonymous goroutine
+	task := make(chan struct{})
+	go func() {
+		fmt.Println("anon")
+		close(task)
+	}()
+	<-task // wait via channel
 }

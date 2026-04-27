@@ -38,7 +38,7 @@ import (
 func say(msg string, n int) {
 	for i := 0; i < n; i++ {
 		fmt.Println(msg, i)
-		time.Sleep(50 * time.Millisecond)
+		// time.Sleep(50 * time.Millisecond)
 	}
 }
 
@@ -48,9 +48,9 @@ func main() {
 	go say("B", 3)
 
 	// Wait so main doesn't exit before goroutines run
-	time.Sleep(300 * time.Millisecond)
+	time.Sleep(3000 * time.Millisecond)
 
-	// WaitGroup — proper way to wait
+	//! WaitGroup — proper way to wait
 	var wg sync.WaitGroup
 	for i := 0; i < 5; i++ {
 		wg.Add(1)            // increment counter BEFORE starting goroutine
