@@ -51,10 +51,10 @@
 //
 // This file is a reference — there's no code to execute beyond a print.
 
-package main
+// package main
 
-import "fmt"
+// import "fmt"
 
-func main() {
-	fmt.Println("Read the comments in this file. Run `go help mod` for command details.")
-}
+// func main() {
+// 	fmt.Println("Read the comments in this file. Run `go help mod` for command details.")
+// }
