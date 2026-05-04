@@ -27,7 +27,7 @@
 //       }
 //   }()
 //
-// ERRORS VS PANIC
+// !  ERRORS VS PANIC
 //   Use `error` for expected failure conditions (idiomatic).
 //   Use `panic` for truly unexpected / unrecoverable bugs (nil deref, OOB).
 //

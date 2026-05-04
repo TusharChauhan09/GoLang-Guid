@@ -38,6 +38,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"unsafe"
 )
 
@@ -83,4 +84,28 @@ func main() {
 	var y float64 = float64(x) // must convert
 	var z int = int(y)
 	fmt.Println(x, y, z)
+
+	// int conversion  to other types
+	var n int = 42
+	var f float64 = float64(n) // 42.0 as float64
+	var s2 string = strconv.Itoa(n) // "42" as string
+	var r2 rune = rune(n)			   // '*' as rune (Unicode code point 42)
+	fmt.Println("int to float:", f, "int to string:", s2, "int to rune:", r2)
+
+	// float conversions to other types
+	var f2 float64 = 3.14
+	var n2 int = int(f2) // 3 as int (truncated)
+	var s3 string = strconv.FormatFloat(f2, 'f', 2, 64) // "3.14" as string
+	fmt.Println("float to int:", n2, "float to string:", s3)
+
+	// string conversions to other types
+	strconv.Atoi("123")   // result : 123 as int
+	strconv.ParseFloat("3.14", 64) // result : 3.14 as float64
+	strconv.ParseBool("true") // result : true as bool
+	var b2 []byte = []byte("hello") // result : []byte{104, 101, 108, 108, 111}
+	 r3 := []rune("你好") // result : []rune{20320, 22909} (Unicode code points for '你' and '好')
+	fmt.Println("string to bytes:", b2, "string to runes:", r3)
+
+
+
 }

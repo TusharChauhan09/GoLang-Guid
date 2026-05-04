@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Complete Go Guide — From Zero to Mastery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0d1117;
+    --bg-soft: #161b22;
+    --bg-card: #1a1f27;
+    --border: #2a313c;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #00ADD8;        /* Go cyan */
+    --accent-2: #79E1F2;
+    --gopher: #F2BD8E;
+    --pink: #FF6B9D;
+    --yellow: #FFD93D;
+    --green: #6EE7B7;
+    --code-bg: #0a0e13;
+    --code-border: #21262d;
+    --keyword: #FF6B9D;
+    --string: #6EE7B7;
+    --comment: #6a737d;
+    --number: #FFD93D;
+    --func: #79E1F2;
+    --type: #C792EA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    line-height: 1.7;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+  /* Subtle grid background */
+  body::before{
+    content:'';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(0,173,216,0.06) 0%, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(255,107,157,0.05) 0%, transparent 40%),
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Layout */
+  .layout{
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    max-width: 1500px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Sidebar */
+  aside{
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 32px 20px;
+    border-right: 1px solid var(--border);
+    background: rgba(13,17,23,0.85);
+    backdrop-filter: blur(10px);
+  }
+  aside::-webkit-scrollbar{width:6px}
+  aside::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .brand{
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .brand-sub{
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  nav ol{
+    list-style: none;
+    counter-reset: nav;
+  }
+  nav li{
+    counter-increment: nav;
+    margin: 2px 0;
+  }
+  nav a{
+    display: block;
+    padding: 6px 10px 6px 30px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.15s;
+  }
+  nav a::before{
+    content: counter(nav, decimal-leading-zero);
+    position: absolute;
+    left: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--border);
+  }
+  nav a:hover{
+    color: var(--accent-2);
+    background: rgba(0,173,216,0.08);
+  }
+  nav a:hover::before{ color: var(--accent); }
+
+  /* Main */
+  main{
+    padding: 60px 60px 120px;
+    max-width: 1100px;
+  }
+
+  /* Hero */
+  .hero{
+    margin-bottom: 80px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .hero-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  .hero h1{
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .hero h1 em{
+    font-style: italic;
+    font-weight: 300;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--pink) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p{
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    max-width: 680px;
+    line-height: 1.6;
+  }
+  .hero-meta{
+    display: flex;
+    gap: 32px;
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    flex-wrap: wrap;
+  }
+  .hero-meta span strong{
+    color: var(--accent-2);
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  /* Sections */
+  section{
+    margin-bottom: 80px;
+    scroll-margin-top: 24px;
+  }
+  .section-num{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+  }
+  h2{
+    font-family: 'Fraunces', serif;
+    font-size: 2.4rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  h2 .accent{
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 300;
+  }
+  .section-lead{
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px dashed var(--border);
+    max-width: 800px;
+  }
+  h3{
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-top: 40px;
+    margin-bottom: 14px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  h3::before{
+    content: '§ ';
+    color: var(--accent);
+    font-weight: 400;
+  }
+  h4{
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    color: var(--accent-2);
+    letter-spacing: 0.02em;
+  }
+  p{ margin-bottom: 14px; }
+  p, li{ color: var(--text); }
+  ul, ol{ margin: 10px 0 16px 24px; }
+  li{ margin-bottom: 6px; }
+  strong{ color: var(--accent-2); font-weight: 600; }
+
+  code, .inline{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    color: var(--accent-2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--code-border);
+  }
+
+  pre{
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 16px 0 22px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    position: relative;
+  }
+  pre::before{
+    content: 'go';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  pre code{
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text);
+    font-size: inherit;
+  }
+  /* Syntax highlighting via spans */
+  .kw{ color: var(--keyword); }
+  .str{ color: var(--string); }
+  .num{ color: var(--number); }
+  .com{ color: var(--comment); font-style: italic; }
+  .fn{ color: var(--func); }
+  .ty{ color: var(--type); }
+  .pn{ color: #FFA657; } /* package/builtin */
+
+  /* Callout boxes */
+  .note, .warn, .tip{
+    border-left: 3px solid var(--accent);
+    background: rgba(0,173,216,0.06);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 18px 0;
+    font-size: 0.95rem;
+  }
+  .note::before{ content:'NOTE — '; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--accent); letter-spacing:0.15em;}
+  .warn{ border-color: var(--pink); background: rgba(255,107,157,0.06); }
+  .warn::before{ content:'WARNING — '; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--pink); letter-spacing:0.15em; }
+  .tip{ border-color: var(--green); background: rgba(110,231,183,0.06); }
+  .tip::before{ content:'TIP — '; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--green); letter-spacing:0.15em; }
+
+  /* Tables */
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.9rem;
+    background: var(--bg-card);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  th, td{
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th{
+    background: var(--bg-soft);
+    color: var(--accent-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  td{ color: var(--text); }
+  td code{ font-size: 0.85em; }
+
+  /* Footer */
+  footer{
+    margin-top: 100px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* Responsive */
+  @media (max-width: 980px){
+    .layout{ grid-template-columns: 1fr; }
+    aside{
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    main{ padding: 40px 24px 80px; }
+    .hero h1{ font-size: 2.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <div class="brand">go.</div>
+  <div class="brand-sub">complete reference</div>
+  <nav>
+    <ol>
+      <li><a href="#intro">Introduction & Setup</a></li>
+      <li><a href="#program">Program Structure</a></li>
+      <li><a href="#variables">Variables & Constants</a></li>
+      <li><a href="#types">Basic Data Types</a></li>
+      <li><a href="#operators">Operators</a></li>
+      <li><a href="#io">Input & Output</a></li>
+      <li><a href="#control">Control Flow</a></li>
+      <li><a href="#functions">Functions</a></li>
+      <li><a href="#arrays">Arrays</a></li>
+      <li><a href="#slices">Slices</a></li>
+      <li><a href="#maps">Maps</a></li>
+      <li><a href="#strings">Strings & Runes</a></li>
+      <li><a href="#pointers">Pointers</a></li>
+      <li><a href="#structs">Structs</a></li>
+      <li><a href="#methods">Methods</a></li>
+      <li><a href="#interfaces">Interfaces</a></li>
+      <li><a href="#errors">Error Handling</a></li>
+      <li><a href="#panic">Panic, Defer, Recover</a></li>
+      <li><a href="#goroutines">Goroutines</a></li>
+      <li><a href="#channels">Channels</a></li>
+      <li><a href="#sync">Sync Package</a></li>
+      <li><a href="#context">Context</a></li>
+      <li><a href="#packages">Packages & Modules</a></li>
+      <li><a href="#generics">Generics</a></li>
+      <li><a href="#reflection">Reflection</a></li>
+      <li><a href="#testing">Testing</a></li>
+      <li><a href="#stdlib">Standard Library Tour</a></li>
+      <li><a href="#files">File I/O</a></li>
+      <li><a href="#json">JSON & Encoding</a></li>
+      <li><a href="#http">HTTP & Web</a></li>
+      <li><a href="#tools">Go Tooling</a></li>
+      <li><a href="#best">Best Practices</a></li>
+    </ol>
+  </nav>
+</aside>
+
+<main>
+
+<section class="hero">
+  <div class="hero-tag">// the complete reference · 2026 edition</div>
+  <h1>The Go <em>Programming</em><br/>Guide.</h1>
+  <p>Every concept in Go, in sequential order — from your very first <code>hello world</code> to concurrency, generics, and idiomatic production code. Each topic is explained with detailed syntax, working examples, and the rules you need to remember.</p>
+  <div class="hero-meta">
+    <span><strong>32</strong>major topics</span>
+    <span><strong>200+</strong>code examples</span>
+    <span><strong>Go 1.22+</strong>syntax</span>
+    <span><strong>~30 min</strong>scan · ~10 hrs deep read</span>
+  </div>
+</section>
+
+<!-- 1. INTRO & SETUP -->
+<section id="intro">
+  <div class="section-num">01 / 32</div>
+  <h2>Introduction <span class="accent">& Setup</span></h2>
+  <p class="section-lead">Go (often called Golang) is a statically typed, compiled, garbage-collected programming language designed at Google by Robert Griesemer, Rob Pike, and Ken Thompson. It emphasizes simplicity, fast compilation, built-in concurrency, and a strong standard library.</p>
+
+  <h3>Key Characteristics</h3>
+  <ul>
+    <li><strong>Statically typed</strong> — types are checked at compile time.</li>
+    <li><strong>Compiled</strong> — produces a single static binary, no runtime VM needed.</li>
+    <li><strong>Garbage collected</strong> — automatic memory management.</li>
+    <li><strong>Concurrent</strong> — goroutines and channels are first-class.</li>
+    <li><strong>Simple</strong> — only ~25 keywords, no inheritance, no exceptions.</li>
+    <li><strong>Cross-platform</strong> — easy cross-compilation with <code>GOOS</code>/<code>GOARCH</code>.</li>
+  </ul>
+
+  <h3>Installation</h3>
+  <p>Download Go from <code>go.dev/dl</code>. After install, verify:</p>
+<pre><code><span class="com"># Check version</span>
+$ go version
+go version go1.22.0 linux/amd64
+
+<span class="com"># Check environment</span>
+$ go env GOPATH GOROOT</code></pre>
+
+  <h3>Your First Program</h3>
+  <p>Create a file <code>hello.go</code>:</p>
+<pre><code><span class="kw">package</span> main
+
+<span class="kw">import</span> <span class="str">"fmt"</span>
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"Hello, World!"</span>)
+}</code></pre>
+  <p>Run it:</p>
+<pre><code>$ go run hello.go
+Hello, World!
+
+<span class="com"># Or compile to a binary</span>
+$ go build hello.go
+$ ./hello</code></pre>
+
+  <div class="note">Every Go file must start with a <code>package</code> declaration. The entry point of an executable is <code>func main()</code> inside <code>package main</code>.</div>
+
+  <h3>The Go Toolchain (Quick Tour)</h3>
+  <table>
+    <tr><th>Command</th><th>Purpose</th></tr>
+    <tr><td><code>go run</code></td><td>Compile and execute</td></tr>
+    <tr><td><code>go build</code></td><td>Compile to binary</td></tr>
+    <tr><td><code>go test</code></td><td>Run tests</td></tr>
+    <tr><td><code>go fmt</code></td><td>Auto-format code</td></tr>
+    <tr><td><code>go vet</code></td><td>Static analysis for bugs</td></tr>
+    <tr><td><code>go mod</code></td><td>Manage dependencies</td></tr>
+    <tr><td><code>go doc</code></td><td>Show documentation</td></tr>
+    <tr><td><code>go install</code></td><td>Install binary to GOBIN</td></tr>
+  </table>
+</section>
+
+<!-- 2. PROGRAM STRUCTURE -->
+<section id="program">
+  <div class="section-num">02 / 32</div>
+  <h2>Program <span class="accent">Structure</span></h2>
+  <p class="section-lead">Every Go program follows a fixed skeleton: a package declaration, imports, then top-level declarations (constants, variables, types, functions).</p>
+
+  <h3>Anatomy of a Go File</h3>
+<pre><code><span class="com">// 1. Package clause — required, first non-comment line</span>
+<span class="kw">package</span> main
+
+<span class="com">// 2. Import declarations</span>
+<span class="kw">import</span> (
+    <span class="str">"fmt"</span>
+    <span class="str">"math"</span>
+    <span class="str">"strings"</span>
+)
+
+<span class="com">// 3. Top-level declarations (any order)</span>
+<span class="kw">const</span> Pi = <span class="num">3.14159</span>
+
+<span class="kw">var</span> Greeting = <span class="str">"Hello"</span>
+
+<span class="kw">type</span> Point <span class="kw">struct</span> { X, Y <span class="ty">int</span> }
+
+<span class="kw">func</span> <span class="fn">add</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> a + b }
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(Greeting, <span class="pn">strings</span>.<span class="fn">ToUpper</span>(<span class="str">"go"</span>))
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="pn">math</span>.<span class="fn">Sqrt</span>(<span class="num">16</span>))
+}</code></pre>
+
+  <h3>Identifiers & Naming Rules</h3>
+  <ul>
+    <li>Must start with a letter or underscore, followed by letters/digits/underscores.</li>
+    <li>Case-sensitive: <code>Foo</code> ≠ <code>foo</code>.</li>
+    <li><strong>Capitalization controls visibility</strong>: identifiers starting with an uppercase letter are <strong>exported</strong> (public), lowercase are <strong>unexported</strong> (package-private).</li>
+    <li>Idiomatic names: short, camelCase for locals, PascalCase for exported.</li>
+  </ul>
+
+  <h3>The 25 Keywords of Go</h3>
+<pre><code>break       default      func         interface    select
+case        defer        go           map          struct
+chan        else         goto         package      switch
+const       fallthrough  if           range        type
+continue    for          import       return       var</code></pre>
+
+  <h3>Comments</h3>
+<pre><code><span class="com">// Single-line comment</span>
+
+<span class="com">/*
+   Multi-line comment.
+   Used for docs at the top of packages.
+*/</span>
+
+<span class="com">// Doc comment for an exported identifier (becomes godoc).</span>
+<span class="kw">func</span> <span class="fn">Add</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> a + b }</code></pre>
+
+  <h3>Semicolons</h3>
+  <p>Go uses semicolons internally, but they are inserted automatically by the lexer at line breaks. You almost never write them. The consequence: an opening <code>{</code> must appear on the <em>same line</em> as the keyword that starts the block.</p>
+<pre><code><span class="com">// CORRECT</span>
+<span class="kw">if</span> x &gt; <span class="num">0</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(x)
+}
+
+<span class="com">// COMPILE ERROR — brace on next line</span>
+<span class="kw">if</span> x &gt; <span class="num">0</span>
+{
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(x)
+}</code></pre>
+</section>
+
+<!-- 3. VARIABLES -->
+<section id="variables">
+  <div class="section-num">03 / 32</div>
+  <h2>Variables <span class="accent">& Constants</span></h2>
+  <p class="section-lead">Go offers several ways to declare variables. Type inference makes most declarations short, but the long forms exist for package-level declarations and explicit typing.</p>
+
+  <h3>Variable Declaration — Four Forms</h3>
+<pre><code><span class="com">// 1. Full form: var name type = value</span>
+<span class="kw">var</span> age <span class="ty">int</span> = <span class="num">25</span>
+
+<span class="com">// 2. Type inferred from value</span>
+<span class="kw">var</span> name = <span class="str">"Alice"</span>
+
+<span class="com">// 3. Zero value (no initializer)</span>
+<span class="kw">var</span> count <span class="ty">int</span>          <span class="com">// 0</span>
+<span class="kw">var</span> active <span class="ty">bool</span>        <span class="com">// false</span>
+<span class="kw">var</span> title <span class="ty">string</span>       <span class="com">// ""</span>
+
+<span class="com">// 4. Short declaration (only inside functions!)</span>
+score := <span class="num">100</span>
+city, country := <span class="str">"Tokyo"</span>, <span class="str">"Japan"</span></code></pre>
+
+  <div class="warn">The short form <code>:=</code> can <strong>only</strong> be used inside functions. At package level you must use <code>var</code>.</div>
+
+  <h3>Multiple Declarations</h3>
+<pre><code><span class="com">// Group with parentheses</span>
+<span class="kw">var</span> (
+    name    <span class="ty">string</span> = <span class="str">"Bob"</span>
+    age     <span class="ty">int</span>    = <span class="num">30</span>
+    height  <span class="ty">float64</span> = <span class="num">1.78</span>
+)
+
+<span class="com">// Multiple on one line</span>
+<span class="kw">var</span> x, y, z <span class="ty">int</span> = <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>
+
+<span class="com">// Parallel assignment / swap</span>
+a, b := <span class="num">1</span>, <span class="num">2</span>
+a, b = b, a   <span class="com">// swap, no temp variable needed</span></code></pre>
+
+  <h3>Zero Values</h3>
+  <p>Every variable, if not initialized, gets the zero value of its type — never garbage memory.</p>
+  <table>
+    <tr><th>Type</th><th>Zero Value</th></tr>
+    <tr><td>numeric (<code>int</code>, <code>float64</code>, …)</td><td><code>0</code></td></tr>
+    <tr><td><code>bool</code></td><td><code>false</code></td></tr>
+    <tr><td><code>string</code></td><td><code>""</code></td></tr>
+    <tr><td>pointer, slice, map, chan, func, interface</td><td><code>nil</code></td></tr>
+    <tr><td>struct</td><td>each field's zero value</td></tr>
+  </table>
+
+  <h3>The Blank Identifier <code>_</code></h3>
+  <p>Use <code>_</code> to discard a value you must receive but don't need.</p>
+<pre><code>_, err := <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"hi"</span>)   <span class="com">// ignore the byte count</span>
+<span class="kw">for</span> _, v := <span class="kw">range</span> nums { ... }   <span class="com">// ignore the index</span></code></pre>
+
+  <h3>Constants</h3>
+  <p>Constants are immutable values known at compile time. They have no address and cannot be assigned to.</p>
+<pre><code><span class="kw">const</span> Pi = <span class="num">3.14159</span>
+<span class="kw">const</span> Greeting <span class="ty">string</span> = <span class="str">"Hello"</span>
+
+<span class="kw">const</span> (
+    StatusOK       = <span class="num">200</span>
+    StatusNotFound = <span class="num">404</span>
+)</code></pre>
+
+  <h4>Typed vs Untyped Constants</h4>
+<pre><code><span class="kw">const</span> a = <span class="num">10</span>          <span class="com">// untyped — flexible, becomes whatever type fits</span>
+<span class="kw">const</span> b <span class="ty">int</span> = <span class="num">10</span>      <span class="com">// typed — must be assigned to int</span>
+
+<span class="kw">var</span> f <span class="ty">float64</span> = a    <span class="com">// OK, a is untyped</span>
+<span class="kw">var</span> g <span class="ty">float64</span> = b    <span class="com">// COMPILE ERROR</span></code></pre>
+
+  <h4>iota — The Constant Generator</h4>
+  <p><code>iota</code> is a special identifier that increments by one inside a <code>const (...)</code> block, starting at 0.</p>
+<pre><code><span class="kw">const</span> (
+    Sunday = <span class="kw">iota</span>   <span class="com">// 0</span>
+    Monday              <span class="com">// 1</span>
+    Tuesday             <span class="com">// 2</span>
+    Wednesday           <span class="com">// 3</span>
+)
+
+<span class="com">// Bit flags using iota</span>
+<span class="kw">const</span> (
+    Read    = <span class="num">1</span> &lt;&lt; <span class="kw">iota</span>  <span class="com">// 1</span>
+    Write                  <span class="com">// 2</span>
+    Execute                <span class="com">// 4</span>
+)</code></pre>
+</section>
+
+<!-- 4. BASIC TYPES -->
+<section id="types">
+  <div class="section-num">04 / 32</div>
+  <h2>Basic <span class="accent">Data Types</span></h2>
+  <p class="section-lead">Go's built-in types are explicit about size and signedness. There is no implicit conversion between numeric types — you must convert explicitly.</p>
+
+  <h3>Numeric Types</h3>
+  <table>
+    <tr><th>Category</th><th>Types</th><th>Range / Notes</th></tr>
+    <tr><td>Signed integers</td><td><code>int8, int16, int32, int64</code></td><td>−2ⁿ⁻¹ to 2ⁿ⁻¹−1</td></tr>
+    <tr><td>Unsigned integers</td><td><code>uint8, uint16, uint32, uint64</code></td><td>0 to 2ⁿ−1</td></tr>
+    <tr><td>Platform integer</td><td><code>int, uint</code></td><td>32 or 64 bit (platform-dependent)</td></tr>
+    <tr><td>Pointer-sized</td><td><code>uintptr</code></td><td>For unsafe pointer math</td></tr>
+    <tr><td>Float</td><td><code>float32, float64</code></td><td>IEEE-754</td></tr>
+    <tr><td>Complex</td><td><code>complex64, complex128</code></td><td>real + imaginary</td></tr>
+    <tr><td>Aliases</td><td><code>byte = uint8</code>, <code>rune = int32</code></td><td>byte for bytes, rune for unicode</td></tr>
+  </table>
+
+<pre><code><span class="kw">var</span> i <span class="ty">int</span> = <span class="num">42</span>
+<span class="kw">var</span> f <span class="ty">float64</span> = <span class="num">3.14</span>
+<span class="kw">var</span> c <span class="ty">complex128</span> = <span class="num">2</span> + <span class="num">3</span>i
+
+<span class="com">// Numeric literals</span>
+<span class="num">42</span>          <span class="com">// decimal</span>
+<span class="num">0b1010</span>      <span class="com">// binary (Go 1.13+)</span>
+<span class="num">0o755</span>       <span class="com">// octal</span>
+<span class="num">0xFF</span>        <span class="com">// hex</span>
+<span class="num">1_000_000</span>   <span class="com">// underscores for readability</span>
+<span class="num">1.5e10</span>      <span class="com">// scientific</span></code></pre>
+
+  <h3>Type Conversions (Explicit Only)</h3>
+<pre><code><span class="kw">var</span> i <span class="ty">int</span> = <span class="num">42</span>
+<span class="kw">var</span> f <span class="ty">float64</span> = <span class="ty">float64</span>(i)   <span class="com">// must be explicit</span>
+<span class="kw">var</span> u <span class="ty">uint</span>    = <span class="ty">uint</span>(f)
+
+<span class="com">// String &lt;-&gt; bytes</span>
+s := <span class="str">"hello"</span>
+b := []<span class="ty">byte</span>(s)
+back := <span class="ty">string</span>(b)</code></pre>
+
+  <div class="warn">Converting <code>int</code> to <code>string</code> with <code>string(65)</code> gives <code>"A"</code> (the rune), not <code>"65"</code>. Use <code>strconv.Itoa</code> for digit conversion.</div>
+
+  <h3>Booleans</h3>
+<pre><code><span class="kw">var</span> done <span class="ty">bool</span> = <span class="kw">true</span>
+ok := <span class="kw">false</span>
+
+<span class="com">// Logical operators: &amp;&amp; (and), || (or), ! (not)</span>
+<span class="kw">if</span> done &amp;&amp; !ok { ... }</code></pre>
+
+  <h3>Strings</h3>
+  <p>Strings are immutable sequences of bytes (typically UTF-8 encoded). Detailed coverage is in §12.</p>
+<pre><code>s := <span class="str">"hello, 世界"</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="kw">len</span>(s))         <span class="com">// 13 (bytes, not characters)</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(s[<span class="num">0</span>])         <span class="com">// 104 (a byte, not 'h')</span>
+
+<span class="com">// Raw string with backticks — no escapes</span>
+path := <span class="str">`C:\Users\foo`</span></code></pre>
+
+  <h3>Type Aliases vs Defined Types</h3>
+<pre><code><span class="com">// Defined type — new distinct type</span>
+<span class="kw">type</span> Celsius <span class="ty">float64</span>
+<span class="kw">type</span> Fahrenheit <span class="ty">float64</span>
+
+<span class="kw">var</span> c Celsius = <span class="num">100</span>
+<span class="kw">var</span> f Fahrenheit = c   <span class="com">// COMPILE ERROR — different types</span>
+
+<span class="com">// Type alias — same type, just another name (rarely used)</span>
+<span class="kw">type</span> Byte = <span class="ty">uint8</span></code></pre>
+</section>
+
+<!-- 5. OPERATORS -->
+<section id="operators">
+  <div class="section-num">05 / 32</div>
+  <h2>Operators <span class="accent">& Precedence</span></h2>
+  <p class="section-lead">Go has a small, predictable operator set. Importantly, there is no ternary operator and no operator overloading.</p>
+
+  <h3>Arithmetic</h3>
+  <table>
+    <tr><th>Op</th><th>Meaning</th><th>Notes</th></tr>
+    <tr><td><code>+ - * /</code></td><td>add, sub, mul, div</td><td>integer division truncates</td></tr>
+    <tr><td><code>%</code></td><td>modulo</td><td>integers only</td></tr>
+    <tr><td><code>++ --</code></td><td>increment / decrement</td><td><strong>statement, not expression</strong>: <code>i++</code> alone, never <code>x = i++</code></td></tr>
+  </table>
+
+  <h3>Comparison</h3>
+<pre><code>== != &lt; &lt;= &gt; &gt;=
+<span class="com">// Returns bool. Operands must be comparable types.</span></code></pre>
+
+  <h3>Logical</h3>
+<pre><code>&amp;&amp;   <span class="com">// short-circuit AND</span>
+||   <span class="com">// short-circuit OR</span>
+!    <span class="com">// NOT</span></code></pre>
+
+  <h3>Bitwise</h3>
+  <table>
+    <tr><th>Op</th><th>Meaning</th></tr>
+    <tr><td><code>&</code></td><td>AND</td></tr>
+    <tr><td><code>|</code></td><td>OR</td></tr>
+    <tr><td><code>^</code></td><td>XOR (binary) / NOT (unary)</td></tr>
+    <tr><td><code>&^</code></td><td>AND NOT (bit clear) — unique to Go</td></tr>
+    <tr><td><code><<</code> <code>>></code></td><td>left / right shift</td></tr>
+  </table>
+
+  <h3>Assignment</h3>
+<pre><code>=    :=    +=    -=    *=    /=    %=
+&amp;=   |=   ^=   &lt;&lt;=  &gt;&gt;=  &amp;^=</code></pre>
+
+  <h3>Address & Channel</h3>
+<pre><code>&amp;x       <span class="com">// address-of</span>
+*p       <span class="com">// dereference</span>
+ch &lt;- v  <span class="com">// send to channel</span>
+&lt;-ch     <span class="com">// receive from channel</span></code></pre>
+
+  <h3>Operator Precedence (highest to lowest)</h3>
+<pre><code>5  *   /   %   &lt;&lt;   &gt;&gt;   &amp;   &amp;^
+4  +   -   |   ^
+3  ==  !=  &lt;   &lt;=   &gt;    &gt;=
+2  &amp;&amp;
+1  ||</code></pre>
+  <div class="tip">When unsure, add parentheses. Go's precedence is simpler than C's, but explicit is better than clever.</div>
+</section>
+
+<!-- 6. INPUT/OUTPUT -->
+<section id="io">
+  <div class="section-num">06 / 32</div>
+  <h2>Input <span class="accent">& Output</span></h2>
+  <p class="section-lead">The <code>fmt</code> package handles formatted I/O. It mirrors C's printf/scanf family but is type-safe.</p>
+
+  <h3>Output Functions</h3>
+<pre><code><span class="pn">fmt</span>.<span class="fn">Print</span>(<span class="str">"hello "</span>, <span class="str">"world"</span>)        <span class="com">// no newline</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"hello"</span>, <span class="str">"world"</span>)       <span class="com">// adds spaces + newline</span>
+<span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"x = %d, y = %s\n"</span>, <span class="num">10</span>, <span class="str">"hi"</span>)
+
+<span class="com">// Variants returning strings:</span>
+s := <span class="pn">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"x=%d"</span>, <span class="num">42</span>)
+
+<span class="com">// Variants writing to any io.Writer:</span>
+<span class="pn">fmt</span>.<span class="fn">Fprintln</span>(<span class="pn">os</span>.Stderr, <span class="str">"oops"</span>)</code></pre>
+
+  <h3>Format Verbs</h3>
+  <table>
+    <tr><th>Verb</th><th>Description</th><th>Example</th></tr>
+    <tr><td><code>%v</code></td><td>default format</td><td><code>{1 2}</code></td></tr>
+    <tr><td><code>%+v</code></td><td>struct with field names</td><td><code>{X:1 Y:2}</code></td></tr>
+    <tr><td><code>%#v</code></td><td>Go syntax representation</td><td><code>main.Point{X:1, Y:2}</code></td></tr>
+    <tr><td><code>%T</code></td><td>type</td><td><code>int</code></td></tr>
+    <tr><td><code>%d</code></td><td>integer (decimal)</td><td><code>42</code></td></tr>
+    <tr><td><code>%b %o %x %X</code></td><td>binary, octal, hex (lower/upper)</td><td><code>2a</code></td></tr>
+    <tr><td><code>%c</code></td><td>rune (character)</td><td><code>A</code></td></tr>
+    <tr><td><code>%s</code></td><td>string</td><td><code>hello</code></td></tr>
+    <tr><td><code>%q</code></td><td>quoted string</td><td><code>"hello"</code></td></tr>
+    <tr><td><code>%f %e %g</code></td><td>floats</td><td><code>3.14</code></td></tr>
+    <tr><td><code>%t</code></td><td>boolean</td><td><code>true</code></td></tr>
+    <tr><td><code>%p</code></td><td>pointer</td><td><code>0xc0000140a0</code></td></tr>
+    <tr><td><code>%%</code></td><td>literal %</td><td><code>%</code></td></tr>
+  </table>
+
+  <h4>Width & Precision</h4>
+<pre><code><span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%5d"</span>, <span class="num">42</span>)        <span class="com">// "   42" (width 5)</span>
+<span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%-5d|"</span>, <span class="num">42</span>)      <span class="com">// "42   |" (left-align)</span>
+<span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%05d"</span>, <span class="num">42</span>)       <span class="com">// "00042" (zero-pad)</span>
+<span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%.2f"</span>, <span class="num">3.14159</span>)  <span class="com">// "3.14"</span>
+<span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%8.2f"</span>, <span class="num">3.14</span>)     <span class="com">// "    3.14"</span></code></pre>
+
+  <h3>Input Functions</h3>
+<pre><code><span class="kw">var</span> name <span class="ty">string</span>
+<span class="kw">var</span> age <span class="ty">int</span>
+<span class="pn">fmt</span>.<span class="fn">Print</span>(<span class="str">"Enter name and age: "</span>)
+<span class="pn">fmt</span>.<span class="fn">Scan</span>(&amp;name, &amp;age)             <span class="com">// space-separated</span>
+<span class="pn">fmt</span>.<span class="fn">Scanln</span>(&amp;name)                  <span class="com">// stops at newline</span>
+<span class="pn">fmt</span>.<span class="fn">Scanf</span>(<span class="str">"%s %d"</span>, &amp;name, &amp;age)  <span class="com">// formatted</span></code></pre>
+
+  <h4>Reading a Whole Line — bufio.Scanner</h4>
+<pre><code><span class="kw">import</span> <span class="str">"bufio"</span>
+<span class="kw">import</span> <span class="str">"os"</span>
+
+scanner := <span class="pn">bufio</span>.<span class="fn">NewScanner</span>(<span class="pn">os</span>.Stdin)
+<span class="pn">fmt</span>.<span class="fn">Print</span>(<span class="str">"Enter line: "</span>)
+scanner.<span class="fn">Scan</span>()
+line := scanner.<span class="fn">Text</span>()
+<span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"You typed:"</span>, line)</code></pre>
+</section>
+
+<!-- 7. CONTROL FLOW -->
+<section id="control">
+  <div class="section-num">07 / 32</div>
+  <h2>Control <span class="accent">Flow</span></h2>
+  <p class="section-lead">Go has only three control structures: <code>if</code>, <code>for</code>, and <code>switch</code>. There is no <code>while</code> or <code>do-while</code> — <code>for</code> handles all loops.</p>
+
+  <h3>if / else if / else</h3>
+<pre><code><span class="kw">if</span> x &gt; <span class="num">0</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"positive"</span>)
+} <span class="kw">else if</span> x &lt; <span class="num">0</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"negative"</span>)
+} <span class="kw">else</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"zero"</span>)
+}
+
+<span class="com">// if with init statement — variable scoped to the if</span>
+<span class="kw">if</span> v, err := <span class="fn">parse</span>(s); err == <span class="kw">nil</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(v)
+} <span class="kw">else</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"bad input:"</span>, err)
+}</code></pre>
+
+  <div class="warn">Conditions are <strong>not</strong> wrapped in parentheses, but braces are <strong>always</strong> required — even for single-line bodies.</div>
+
+  <h3>for — The Only Loop</h3>
+<pre><code><span class="com">// 1. Classic three-clause</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">10</span>; i++ {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(i)
+}
+
+<span class="com">// 2. Condition-only (acts like while)</span>
+n := <span class="num">10</span>
+<span class="kw">for</span> n &gt; <span class="num">0</span> {
+    n--
+}
+
+<span class="com">// 3. Infinite loop</span>
+<span class="kw">for</span> {
+    <span class="kw">if</span> done() { <span class="kw">break</span> }
+}
+
+<span class="com">// 4. for-range over collections</span>
+nums := []<span class="ty">int</span>{<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}
+<span class="kw">for</span> i, v := <span class="kw">range</span> nums {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(i, v)
+}
+
+<span class="com">// for-range over a string yields rune index + rune</span>
+<span class="kw">for</span> i, r := <span class="kw">range</span> <span class="str">"héllo"</span> { ... }
+
+<span class="com">// for-range over a map (unordered)</span>
+<span class="kw">for</span> k, v := <span class="kw">range</span> myMap { ... }
+
+<span class="com">// for-range over a channel</span>
+<span class="kw">for</span> v := <span class="kw">range</span> ch { ... }
+
+<span class="com">// Go 1.22+: range over an integer count</span>
+<span class="kw">for</span> i := <span class="kw">range</span> <span class="num">5</span> {           <span class="com">// i = 0..4</span>
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(i)
+}</code></pre>
+
+  <h3>break, continue, labels, goto</h3>
+<pre><code>Outer:
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">5</span>; i++ {
+    <span class="kw">for</span> j := <span class="num">0</span>; j &lt; <span class="num">5</span>; j++ {
+        <span class="kw">if</span> j == <span class="num">3</span> { <span class="kw">break</span> Outer }      <span class="com">// exits both loops</span>
+        <span class="kw">if</span> j == <span class="num">1</span> { <span class="kw">continue</span> }          <span class="com">// next inner iteration</span>
+    }
+}
+
+<span class="com">// goto — exists, rarely needed, jumps to a label in the same function</span>
+<span class="kw">goto</span> End
+End:</code></pre>
+
+  <h3>switch</h3>
+<pre><code><span class="com">// Cases do NOT fall through by default</span>
+<span class="kw">switch</span> day {
+<span class="kw">case</span> <span class="str">"Sat"</span>, <span class="str">"Sun"</span>:                <span class="com">// multiple values</span>
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"weekend"</span>)
+<span class="kw">case</span> <span class="str">"Mon"</span>:
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"monday blues"</span>)
+    <span class="kw">fallthrough</span>                  <span class="com">// explicit fall-through</span>
+<span class="kw">case</span> <span class="str">"Tue"</span>:
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"midweek"</span>)
+<span class="kw">default</span>:
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"other"</span>)
+}
+
+<span class="com">// switch with no expression — like if/else if chains</span>
+<span class="kw">switch</span> {
+<span class="kw">case</span> score &gt;= <span class="num">90</span>: grade = <span class="str">"A"</span>
+<span class="kw">case</span> score &gt;= <span class="num">80</span>: grade = <span class="str">"B"</span>
+<span class="kw">default</span>:          grade = <span class="str">"F"</span>
+}
+
+<span class="com">// switch with init</span>
+<span class="kw">switch</span> v := <span class="fn">getValue</span>(); v {
+<span class="kw">case</span> <span class="num">1</span>: ...
+}
+
+<span class="com">// type switch (covered more in §16)</span>
+<span class="kw">switch</span> v := i.(<span class="kw">type</span>) {
+<span class="kw">case</span> <span class="ty">int</span>:    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"int"</span>, v)
+<span class="kw">case</span> <span class="ty">string</span>: <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"string"</span>, v)
+<span class="kw">default</span>:      <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"other"</span>)
+}</code></pre>
+</section>
+
+<!-- 8. FUNCTIONS -->
+<section id="functions">
+  <div class="section-num">08 / 32</div>
+  <h2>Functions</h2>
+  <p class="section-lead">Functions are first-class values: they can be assigned to variables, passed as arguments, and returned from other functions.</p>
+
+  <h3>Basic Syntax</h3>
+<pre><code><span class="kw">func</span> name(param1 type1, param2 type2) returnType {
+    <span class="kw">return</span> value
+}
+
+<span class="kw">func</span> <span class="fn">add</span>(a <span class="ty">int</span>, b <span class="ty">int</span>) <span class="ty">int</span> {
+    <span class="kw">return</span> a + b
+}
+
+<span class="com">// Same-type params can share their type</span>
+<span class="kw">func</span> <span class="fn">add</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> a + b }</code></pre>
+
+  <h3>Multiple Return Values</h3>
+<pre><code><span class="kw">func</span> <span class="fn">divmod</span>(a, b <span class="ty">int</span>) (<span class="ty">int</span>, <span class="ty">int</span>) {
+    <span class="kw">return</span> a / b, a % b
+}
+
+q, r := <span class="fn">divmod</span>(<span class="num">17</span>, <span class="num">5</span>)</code></pre>
+
+  <h3>Named Return Values</h3>
+<pre><code><span class="kw">func</span> <span class="fn">split</span>(sum <span class="ty">int</span>) (x, y <span class="ty">int</span>) {
+    x = sum * <span class="num">4</span> / <span class="num">9</span>
+    y = sum - x
+    <span class="kw">return</span>     <span class="com">// "naked" return — uses x and y</span>
+}</code></pre>
+  <div class="tip">Named returns are great for documentation and for use with <code>defer</code> to modify return values, but in long functions they hurt readability.</div>
+
+  <h3>Variadic Functions</h3>
+<pre><code><span class="kw">func</span> <span class="fn">sum</span>(nums ...<span class="ty">int</span>) <span class="ty">int</span> {
+    total := <span class="num">0</span>
+    <span class="kw">for</span> _, n := <span class="kw">range</span> nums { total += n }
+    <span class="kw">return</span> total
+}
+
+<span class="fn">sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)
+nums := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+<span class="fn">sum</span>(nums...)              <span class="com">// spread a slice</span></code></pre>
+
+  <h3>Functions as Values</h3>
+<pre><code><span class="kw">var</span> op <span class="kw">func</span>(<span class="ty">int</span>, <span class="ty">int</span>) <span class="ty">int</span> = add
+<span class="pn">fmt</span>.<span class="fn">Println</span>(op(<span class="num">3</span>, <span class="num">4</span>))   <span class="com">// 7</span>
+
+<span class="com">// Anonymous function</span>
+<span class="fn">greet</span> := <span class="kw">func</span>(name <span class="ty">string</span>) { <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"hi"</span>, name) }
+<span class="fn">greet</span>(<span class="str">"Ana"</span>)
+
+<span class="com">// IIFE — immediately invoked</span>
+<span class="kw">func</span>() { <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"once"</span>) }()</code></pre>
+
+  <h3>Closures</h3>
+<pre><code><span class="kw">func</span> <span class="fn">counter</span>() <span class="kw">func</span>() <span class="ty">int</span> {
+    n := <span class="num">0</span>
+    <span class="kw">return</span> <span class="kw">func</span>() <span class="ty">int</span> {
+        n++
+        <span class="kw">return</span> n
+    }
+}
+
+c := <span class="fn">counter</span>()
+<span class="pn">fmt</span>.<span class="fn">Println</span>(c(), c(), c())   <span class="com">// 1 2 3</span></code></pre>
+
+  <h3>Higher-Order Functions</h3>
+<pre><code><span class="kw">func</span> <span class="fn">apply</span>(nums []<span class="ty">int</span>, fn <span class="kw">func</span>(<span class="ty">int</span>) <span class="ty">int</span>) []<span class="ty">int</span> {
+    out := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="kw">len</span>(nums))
+    <span class="kw">for</span> i, n := <span class="kw">range</span> nums { out[i] = <span class="fn">fn</span>(n) }
+    <span class="kw">return</span> out
+}
+
+doubled := <span class="fn">apply</span>([]<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}, <span class="kw">func</span>(x <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> x * <span class="num">2</span> })</code></pre>
+
+  <h3>init() — Special Function</h3>
+  <p>Each file may define an <code>init()</code> that runs once, before <code>main()</code>, to initialize package state.</p>
+<pre><code><span class="kw">func</span> <span class="fn">init</span>() {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"package initialized"</span>)
+}</code></pre>
+</section>
+
+<!-- 9. ARRAYS -->
+<section id="arrays">
+  <div class="section-num">09 / 32</div>
+  <h2>Arrays</h2>
+  <p class="section-lead">An array has a <strong>fixed length</strong> that's part of its type. Arrays are passed by <em>value</em> (copied). In practice, you almost always use slices instead — but arrays are the foundation slices are built on.</p>
+
+  <h3>Declaration</h3>
+<pre><code><span class="kw">var</span> a [<span class="num">5</span>]<span class="ty">int</span>                          <span class="com">// [0 0 0 0 0]</span>
+<span class="kw">var</span> b = [<span class="num">3</span>]<span class="ty">string</span>{<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>}
+c := [...]<span class="ty">int</span>{<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}            <span class="com">// length inferred = 3</span>
+d := [<span class="num">5</span>]<span class="ty">int</span>{<span class="num">1</span>: <span class="num">10</span>, <span class="num">3</span>: <span class="num">30</span>}            <span class="com">// [0 10 0 30 0]</span></code></pre>
+
+  <h3>Access & Length</h3>
+<pre><code>a[<span class="num">0</span>] = <span class="num">100</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(a[<span class="num">0</span>], <span class="kw">len</span>(a))</code></pre>
+
+  <h3>Arrays Are Values</h3>
+<pre><code>x := [<span class="num">3</span>]<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+y := x          <span class="com">// FULL COPY</span>
+y[<span class="num">0</span>] = <span class="num">99</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(x, y)   <span class="com">// [1 2 3] [99 2 3]</span></code></pre>
+
+  <h3>Multi-dimensional</h3>
+<pre><code><span class="kw">var</span> grid [<span class="num">3</span>][<span class="num">3</span>]<span class="ty">int</span>
+grid[<span class="num">1</span>][<span class="num">2</span>] = <span class="num">5</span>
+
+matrix := [<span class="num">2</span>][<span class="num">2</span>]<span class="ty">int</span>{
+    {<span class="num">1</span>, <span class="num">2</span>},
+    {<span class="num">3</span>, <span class="num">4</span>},
+}</code></pre>
+</section>
+
+<!-- 10. SLICES -->
+<section id="slices">
+  <div class="section-num">10 / 32</div>
+  <h2>Slices</h2>
+  <p class="section-lead">A slice is a dynamically-sized, flexible view into the elements of an array. It's the workhorse data structure of Go. A slice has three parts: <strong>pointer</strong> (to a backing array), <strong>length</strong>, and <strong>capacity</strong>.</p>
+
+  <h3>Creating Slices</h3>
+<pre><code><span class="com">// 1. Slice literal</span>
+s := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+
+<span class="com">// 2. From an array — s = a[low:high]  (high is exclusive)</span>
+a := [<span class="num">5</span>]<span class="ty">int</span>{<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>}
+s2 := a[<span class="num">1</span>:<span class="num">4</span>]      <span class="com">// [20 30 40], len=3, cap=4</span>
+
+<span class="com">// 3. make(type, length, capacity)</span>
+s3 := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="num">5</span>)        <span class="com">// len=5, cap=5, zeroed</span>
+s4 := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="num">5</span>, <span class="num">10</span>)    <span class="com">// len=5, cap=10</span>
+
+<span class="com">// 4. nil slice</span>
+<span class="kw">var</span> s5 []<span class="ty">int</span>             <span class="com">// nil; len=0, cap=0</span></code></pre>
+
+  <h3>len() vs cap()</h3>
+<pre><code>s := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="num">3</span>, <span class="num">5</span>)
+<span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="kw">len</span>(s), <span class="kw">cap</span>(s))   <span class="com">// 3 5</span></code></pre>
+
+  <h3>Slicing a Slice</h3>
+<pre><code>s := []<span class="ty">int</span>{<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+s[<span class="num">1</span>:<span class="num">4</span>]          <span class="com">// [1 2 3]</span>
+s[:<span class="num">2</span>]           <span class="com">// [0 1]   — from start</span>
+s[<span class="num">3</span>:]           <span class="com">// [3 4]   — to end</span>
+s[:]            <span class="com">// full slice</span>
+
+<span class="com">// 3-index slice — limits capacity (security/safety)</span>
+s[<span class="num">1</span>:<span class="num">3</span>:<span class="num">3</span>]        <span class="com">// len=2, cap=2</span></code></pre>
+
+  <h3>append</h3>
+<pre><code>s := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>}
+s = <span class="fn">append</span>(s, <span class="num">3</span>)              <span class="com">// [1 2 3]</span>
+s = <span class="fn">append</span>(s, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>)        <span class="com">// [1 2 3 4 5 6]</span>
+
+<span class="com">// Append a slice to a slice</span>
+more := []<span class="ty">int</span>{<span class="num">7</span>, <span class="num">8</span>}
+s = <span class="fn">append</span>(s, more...)</code></pre>
+
+  <div class="warn">When <code>append</code> exceeds capacity, Go allocates a new larger backing array. Always reassign: <code>s = append(s, x)</code>.</div>
+
+  <h3>copy</h3>
+<pre><code>src := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+dst := <span class="fn">make</span>([]<span class="ty">int</span>, <span class="num">3</span>)
+n := <span class="fn">copy</span>(dst, src)   <span class="com">// returns number of elements copied</span></code></pre>
+
+  <h3>Slices Share Backing Arrays</h3>
+<pre><code>a := []<span class="ty">int</span>{<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+b := a[<span class="num">1</span>:<span class="num">3</span>]
+b[<span class="num">0</span>] = <span class="num">99</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(a)   <span class="com">// [1 99 3 4]  ← a was modified!</span></code></pre>
+
+  <h3>Common Idioms</h3>
+<pre><code><span class="com">// Remove element at index i (preserves order)</span>
+s = <span class="fn">append</span>(s[:i], s[i+<span class="num">1</span>:]...)
+
+<span class="com">// Insert v at index i</span>
+s = <span class="fn">append</span>(s[:i], <span class="fn">append</span>([]<span class="ty">int</span>{v}, s[i:]...)...)
+
+<span class="com">// Stack: push / pop</span>
+stack = <span class="fn">append</span>(stack, x)         <span class="com">// push</span>
+x, stack = stack[<span class="kw">len</span>(stack)-<span class="num">1</span>], stack[:<span class="kw">len</span>(stack)-<span class="num">1</span>]   <span class="com">// pop</span>
+
+<span class="com">// Reverse</span>
+<span class="kw">for</span> i, j := <span class="num">0</span>, <span class="kw">len</span>(s)-<span class="num">1</span>; i &lt; j; i, j = i+<span class="num">1</span>, j-<span class="num">1</span> {
+    s[i], s[j] = s[j], s[i]
+}</code></pre>
+</section>
+
+<!-- 11. MAPS -->
+<section id="maps">
+  <div class="section-num">11 / 32</div>
+  <h2>Maps</h2>
+  <p class="section-lead">A map is an unordered collection of key/value pairs. Internally a hash table. Keys must be of a comparable type (anything except slices, maps, and functions).</p>
+
+  <h3>Declaration & Initialization</h3>
+<pre><code><span class="com">// 1. make</span>
+m := <span class="fn">make</span>(<span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>)
+
+<span class="com">// 2. Map literal</span>
+ages := <span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span>{
+    <span class="str">"Alice"</span>: <span class="num">30</span>,
+    <span class="str">"Bob"</span>:   <span class="num">25</span>,
+}
+
+<span class="com">// 3. nil map — read-only, write panics</span>
+<span class="kw">var</span> m2 <span class="kw">map</span>[<span class="ty">string</span>]<span class="ty">int</span></code></pre>
+
+  <h3>Operations</h3>
+<pre><code>ages[<span class="str">"Carol"</span>] = <span class="num">28</span>          <span class="com">// add or update</span>
+age := ages[<span class="str">"Alice"</span>]         <span class="com">// read</span>
+<span class="kw">delete</span>(ages, <span class="str">"Bob"</span>)         <span class="com">// remove</span>
+n := <span class="kw">len</span>(ages)               <span class="com">// size</span></code></pre>
+
+  <h3>The "comma ok" Idiom</h3>
+<pre><code>v, ok := ages[<span class="str">"Dan"</span>]
+<span class="kw">if</span> ok {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"Dan is"</span>, v)
+} <span class="kw">else</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"Dan not found"</span>)
+}</code></pre>
+  <div class="warn">Reading a missing key returns the zero value of the value type — no error. Use the <code>, ok</code> form to distinguish "missing" from "zero".</div>
+
+  <h3>Iteration</h3>
+<pre><code><span class="kw">for</span> k, v := <span class="kw">range</span> ages {
+    <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%s: %d\n"</span>, k, v)
+}</code></pre>
+  <div class="note">Map iteration order is <strong>randomized</strong> by the runtime. Don't depend on it. To iterate in a specific order, sort the keys first.</div>
+
+  <h3>Sorted Iteration</h3>
+<pre><code><span class="kw">import</span> <span class="str">"sort"</span>
+
+keys := <span class="fn">make</span>([]<span class="ty">string</span>, <span class="num">0</span>, <span class="kw">len</span>(ages))
+<span class="kw">for</span> k := <span class="kw">range</span> ages { keys = <span class="fn">append</span>(keys, k) }
+<span class="pn">sort</span>.<span class="fn">Strings</span>(keys)
+<span class="kw">for</span> _, k := <span class="kw">range</span> keys {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(k, ages[k])
+}</code></pre>
+
+  <h3>Sets via Maps</h3>
+<pre><code>set := <span class="kw">map</span>[<span class="ty">string</span>]<span class="kw">struct</span>{}{}
+set[<span class="str">"apple"</span>] = <span class="kw">struct</span>{}{}
+set[<span class="str">"banana"</span>] = <span class="kw">struct</span>{}{}
+_, has := set[<span class="str">"apple"</span>]    <span class="com">// true</span></code></pre>
+</section>
+
+<!-- 12. STRINGS & RUNES -->
+<section id="strings">
+  <div class="section-num">12 / 32</div>
+  <h2>Strings <span class="accent">& Runes</span></h2>
+  <p class="section-lead">A Go string is an immutable read-only slice of bytes — typically UTF-8 encoded. <code>byte</code> is an alias for <code>uint8</code> (raw byte). <code>rune</code> is an alias for <code>int32</code> (a Unicode code point).</p>
+
+  <h3>Basics</h3>
+<pre><code>s := <span class="str">"hello"</span>
+<span class="kw">len</span>(s)               <span class="com">// 5 (bytes)</span>
+s[<span class="num">0</span>]                <span class="com">// 104 (byte 'h')</span>
+
+<span class="com">// strings are immutable</span>
+s[<span class="num">0</span>] = <span class="str">'H'</span>           <span class="com">// COMPILE ERROR</span>
+
+<span class="com">// concatenation</span>
+greeting := <span class="str">"hi "</span> + <span class="str">"there"</span></code></pre>
+
+  <h3>Raw vs Interpreted Literals</h3>
+<pre><code>a := <span class="str">"line1\nline2"</span>      <span class="com">// interpreted: \n is newline</span>
+b := <span class="str">`line1\nline2`</span>       <span class="com">// raw: \n is two chars</span></code></pre>
+
+  <h3>Escape Sequences</h3>
+  <table>
+    <tr><td><code>\n</code></td><td>newline</td><td><code>\t</code></td><td>tab</td></tr>
+    <tr><td><code>\r</code></td><td>carriage return</td><td><code>\\</code></td><td>backslash</td></tr>
+    <tr><td><code>\"</code></td><td>double quote</td><td><code>\'</code></td><td>single quote (rune lits)</td></tr>
+    <tr><td><code>\xFF</code></td><td>hex byte</td><td><code>\u00E9</code></td><td>4-digit unicode</td></tr>
+  </table>
+
+  <h3>Iterating Correctly Over a String</h3>
+<pre><code>s := <span class="str">"héllo"</span>
+
+<span class="com">// BYTE iteration — wrong for non-ASCII</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="kw">len</span>(s); i++ {
+    <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%d: %x\n"</span>, i, s[i])
+}
+
+<span class="com">// RUNE iteration via for-range — correct</span>
+<span class="kw">for</span> i, r := <span class="kw">range</span> s {
+    <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%d: %c (%U)\n"</span>, i, r, r)
+}</code></pre>
+
+  <h3>Conversions</h3>
+<pre><code>s  := <span class="str">"hello"</span>
+bs := []<span class="ty">byte</span>(s)            <span class="com">// to byte slice</span>
+rs := []<span class="ty">rune</span>(s)            <span class="com">// to rune slice</span>
+back := <span class="ty">string</span>(rs)          <span class="com">// back to string</span>
+<span class="ty">string</span>(<span class="num">65</span>)                   <span class="com">// "A" (rune 65)</span></code></pre>
+
+  <h3>The <code>strings</code> Package</h3>
+<pre><code><span class="kw">import</span> <span class="str">"strings"</span>
+
+<span class="pn">strings</span>.<span class="fn">Contains</span>(<span class="str">"hello"</span>, <span class="str">"ell"</span>)        <span class="com">// true</span>
+<span class="pn">strings</span>.<span class="fn">HasPrefix</span>(<span class="str">"hello"</span>, <span class="str">"he"</span>)        <span class="com">// true</span>
+<span class="pn">strings</span>.<span class="fn">HasSuffix</span>(<span class="str">"hello"</span>, <span class="str">"lo"</span>)        <span class="com">// true</span>
+<span class="pn">strings</span>.<span class="fn">Index</span>(<span class="str">"hello"</span>, <span class="str">"l"</span>)             <span class="com">// 2</span>
+<span class="pn">strings</span>.<span class="fn">Count</span>(<span class="str">"banana"</span>, <span class="str">"a"</span>)            <span class="com">// 3</span>
+<span class="pn">strings</span>.<span class="fn">Replace</span>(<span class="str">"foo"</span>, <span class="str">"o"</span>, <span class="str">"0"</span>, -<span class="num">1</span>)    <span class="com">// "f00"</span>
+<span class="pn">strings</span>.<span class="fn">Split</span>(<span class="str">"a,b,c"</span>, <span class="str">","</span>)           <span class="com">// ["a","b","c"]</span>
+<span class="pn">strings</span>.<span class="fn">Join</span>([]<span class="ty">string</span>{<span class="str">"a"</span>,<span class="str">"b"</span>}, <span class="str">"-"</span>)      <span class="com">// "a-b"</span>
+<span class="pn">strings</span>.<span class="fn">ToUpper</span>(<span class="str">"go"</span>)                  <span class="com">// "GO"</span>
+<span class="pn">strings</span>.<span class="fn">ToLower</span>(<span class="str">"Go"</span>)                  <span class="com">// "go"</span>
+<span class="pn">strings</span>.<span class="fn">TrimSpace</span>(<span class="str">"  hi  "</span>)            <span class="com">// "hi"</span>
+<span class="pn">strings</span>.<span class="fn">Repeat</span>(<span class="str">"ab"</span>, <span class="num">3</span>)                 <span class="com">// "ababab"</span></code></pre>
+
+  <h3>Building Strings Efficiently</h3>
+<pre><code><span class="kw">var</span> b <span class="pn">strings</span>.Builder
+b.<span class="fn">WriteString</span>(<span class="str">"hello "</span>)
+b.<span class="fn">WriteString</span>(<span class="str">"world"</span>)
+result := b.<span class="fn">String</span>()</code></pre>
+
+  <h3>strconv — String / Number</h3>
+<pre><code><span class="kw">import</span> <span class="str">"strconv"</span>
+
+n, err := <span class="pn">strconv</span>.<span class="fn">Atoi</span>(<span class="str">"42"</span>)         <span class="com">// string -&gt; int</span>
+s := <span class="pn">strconv</span>.<span class="fn">Itoa</span>(<span class="num">42</span>)               <span class="com">// int -&gt; string</span>
+f, _ := <span class="pn">strconv</span>.<span class="fn">ParseFloat</span>(<span class="str">"3.14"</span>, <span class="num">64</span>)
+b, _ := <span class="pn">strconv</span>.<span class="fn">ParseBool</span>(<span class="str">"true"</span>)</code></pre>
+</section>
+
+<!-- 13. POINTERS -->
+<section id="pointers">
+  <div class="section-num">13 / 32</div>
+  <h2>Pointers</h2>
+  <p class="section-lead">A pointer holds the memory address of a value. Go has pointers but no pointer arithmetic — they're for sharing, not for raw memory tricks.</p>
+
+  <h3>Address & Dereference</h3>
+<pre><code>x := <span class="num">10</span>
+p := &amp;x              <span class="com">// p is *int, holds address of x</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(*p)      <span class="com">// 10  (dereference)</span>
+*p = <span class="num">20</span>              <span class="com">// modifies x through p</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(x)       <span class="com">// 20</span></code></pre>
+
+  <h3>Declaration</h3>
+<pre><code><span class="kw">var</span> p *<span class="ty">int</span>           <span class="com">// nil — declared but not pointing</span>
+<span class="kw">var</span> q = <span class="kw">new</span>(<span class="ty">int</span>)      <span class="com">// allocates a zeroed int, returns *int</span>
+*q = <span class="num">5</span></code></pre>
+
+  <h3>Pointers as Function Arguments</h3>
+<pre><code><span class="kw">func</span> <span class="fn">double</span>(n *<span class="ty">int</span>) {
+    *n = *n * <span class="num">2</span>
+}
+
+x := <span class="num">3</span>
+<span class="fn">double</span>(&amp;x)
+<span class="pn">fmt</span>.<span class="fn">Println</span>(x)   <span class="com">// 6</span></code></pre>
+
+  <h3>Why Pointers?</h3>
+  <ul>
+    <li>To <strong>mutate</strong> a value passed to a function.</li>
+    <li>To <strong>avoid copying</strong> large structs.</li>
+    <li>To represent <strong>optional</strong> values (use <code>nil</code> as "absent").</li>
+  </ul>
+
+  <h3>What Go Doesn't Allow</h3>
+<pre><code>p := &amp;x
+p++                 <span class="com">// COMPILE ERROR — no pointer arithmetic</span>
+p = p + <span class="num">1</span>           <span class="com">// COMPILE ERROR</span></code></pre>
+
+  <h3>Pointers to Structs (Auto-deref)</h3>
+<pre><code><span class="kw">type</span> Point <span class="kw">struct</span> { X, Y <span class="ty">int</span> }
+p := &amp;Point{X: <span class="num">1</span>, Y: <span class="num">2</span>}
+<span class="pn">fmt</span>.<span class="fn">Println</span>(p.X)         <span class="com">// 1 — Go auto-dereferences</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>((*p).X)      <span class="com">// same thing, explicit</span></code></pre>
+</section>
+
+<!-- 14. STRUCTS -->
+<section id="structs">
+  <div class="section-num">14 / 32</div>
+  <h2>Structs</h2>
+  <p class="section-lead">A struct is a typed collection of named fields — Go's composite type for grouping data. Combined with methods, structs replace classes from other languages.</p>
+
+  <h3>Defining & Instantiating</h3>
+<pre><code><span class="kw">type</span> Person <span class="kw">struct</span> {
+    Name <span class="ty">string</span>
+    Age  <span class="ty">int</span>
+}
+
+<span class="com">// Different ways to create</span>
+<span class="kw">var</span> p1 Person                          <span class="com">// zero values: "" 0</span>
+p2 := Person{<span class="str">"Alice"</span>, <span class="num">30</span>}              <span class="com">// positional — fragile</span>
+p3 := Person{Name: <span class="str">"Bob"</span>, Age: <span class="num">25</span>}     <span class="com">// named — preferred</span>
+p4 := Person{Name: <span class="str">"Carol"</span>}             <span class="com">// Age = 0 (zero value)</span>
+p5 := &amp;Person{Name: <span class="str">"Dan"</span>}              <span class="com">// pointer to struct</span></code></pre>
+
+  <h3>Field Access</h3>
+<pre><code>p3.Name = <span class="str">"Bobby"</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(p3.Age)</code></pre>
+
+  <h3>Anonymous Structs</h3>
+<pre><code>config := <span class="kw">struct</span> {
+    Host <span class="ty">string</span>
+    Port <span class="ty">int</span>
+}{
+    Host: <span class="str">"localhost"</span>,
+    Port: <span class="num">8080</span>,
+}</code></pre>
+
+  <h3>Embedded Fields (Composition)</h3>
+  <p>Go has no inheritance. Instead, you embed a type — its fields and methods are promoted.</p>
+<pre><code><span class="kw">type</span> Animal <span class="kw">struct</span> {
+    Name <span class="ty">string</span>
+}
+
+<span class="kw">func</span> (a Animal) <span class="fn">Speak</span>() { <span class="pn">fmt</span>.<span class="fn">Println</span>(a.Name, <span class="str">"makes a sound"</span>) }
+
+<span class="kw">type</span> Dog <span class="kw">struct</span> {
+    Animal      <span class="com">// embedded</span>
+    Breed <span class="ty">string</span>
+}
+
+d := Dog{Animal: Animal{Name: <span class="str">"Rex"</span>}, Breed: <span class="str">"Lab"</span>}
+<span class="pn">fmt</span>.<span class="fn">Println</span>(d.Name)   <span class="com">// promoted from Animal</span>
+d.<span class="fn">Speak</span>()              <span class="com">// promoted method</span></code></pre>
+
+  <h3>Struct Tags</h3>
+  <p>Backtick strings after a field — read by reflection (e.g. by JSON encoders).</p>
+<pre><code><span class="kw">type</span> User <span class="kw">struct</span> {
+    Name  <span class="ty">string</span> <span class="str">`json:"name"`</span>
+    Email <span class="ty">string</span> <span class="str">`json:"email,omitempty"`</span>
+    pwd   <span class="ty">string</span> <span class="str">`json:"-"`</span>          <span class="com">// never serialized</span>
+}</code></pre>
+
+  <h3>Comparing Structs</h3>
+<pre><code><span class="com">// Structs are comparable if all their fields are comparable.</span>
+a := Person{<span class="str">"A"</span>, <span class="num">1</span>}
+b := Person{<span class="str">"A"</span>, <span class="num">1</span>}
+<span class="pn">fmt</span>.<span class="fn">Println</span>(a == b)   <span class="com">// true</span></code></pre>
+
+  <h3>Empty Struct</h3>
+<pre><code><span class="kw">type</span> Empty <span class="kw">struct</span>{}     <span class="com">// 0 bytes — useful as map values for sets, signal channels</span>
+done := <span class="fn">make</span>(<span class="kw">chan</span> <span class="kw">struct</span>{})</code></pre>
+</section>
+
+<!-- 15. METHODS -->
+<section id="methods">
+  <div class="section-num">15 / 32</div>
+  <h2>Methods</h2>
+  <p class="section-lead">A method is a function with a special <strong>receiver</strong> argument. It binds the function to a type.</p>
+
+  <h3>Basic Method</h3>
+<pre><code><span class="kw">type</span> Rectangle <span class="kw">struct</span> { W, H <span class="ty">float64</span> }
+
+<span class="com">// receiver appears between func and the name</span>
+<span class="kw">func</span> (r Rectangle) <span class="fn">Area</span>() <span class="ty">float64</span> {
+    <span class="kw">return</span> r.W * r.H
+}
+
+r := Rectangle{<span class="num">3</span>, <span class="num">4</span>}
+<span class="pn">fmt</span>.<span class="fn">Println</span>(r.<span class="fn">Area</span>())</code></pre>
+
+  <h3>Value Receiver vs Pointer Receiver</h3>
+<pre><code><span class="kw">type</span> Counter <span class="kw">struct</span> { n <span class="ty">int</span> }
+
+<span class="com">// VALUE receiver — operates on a COPY</span>
+<span class="kw">func</span> (c Counter) <span class="fn">Get</span>() <span class="ty">int</span> { <span class="kw">return</span> c.n }
+
+<span class="com">// POINTER receiver — modifies the original</span>
+<span class="kw">func</span> (c *Counter) <span class="fn">Inc</span>() { c.n++ }
+
+c := Counter{}
+c.<span class="fn">Inc</span>(); c.<span class="fn">Inc</span>(); c.<span class="fn">Inc</span>()
+<span class="pn">fmt</span>.<span class="fn">Println</span>(c.<span class="fn">Get</span>())   <span class="com">// 3</span></code></pre>
+
+  <h4>When to Use Each</h4>
+  <ul>
+    <li>Use <strong>pointer receiver</strong> if the method modifies the receiver, or if the type is large (avoid copy), or to keep the method set consistent.</li>
+    <li>Use <strong>value receiver</strong> for small, immutable-feeling types (like <code>time.Time</code>).</li>
+    <li><strong>Be consistent</strong> within one type — mixing receivers is confusing.</li>
+  </ul>
+
+  <h3>Methods on Non-Struct Types</h3>
+<pre><code><span class="kw">type</span> MyInt <span class="ty">int</span>
+
+<span class="kw">func</span> (m MyInt) <span class="fn">Double</span>() MyInt { <span class="kw">return</span> m * <span class="num">2</span> }
+
+<span class="kw">var</span> x MyInt = <span class="num">5</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(x.<span class="fn">Double</span>())   <span class="com">// 10</span></code></pre>
+  <div class="warn">You can only define methods on types declared in the <strong>same package</strong>. You cannot add methods to <code>int</code> directly — wrap it in your own type first.</div>
+</section>
+
+<!-- 16. INTERFACES -->
+<section id="interfaces">
+  <div class="section-num">16 / 32</div>
+  <h2>Interfaces</h2>
+  <p class="section-lead">An interface is a set of method signatures. Any type that implements those methods <strong>satisfies</strong> the interface — there is no <code>implements</code> keyword. This is "structural typing", and it's the heart of Go's polymorphism.</p>
+
+  <h3>Defining and Satisfying</h3>
+<pre><code><span class="kw">type</span> Shape <span class="kw">interface</span> {
+    <span class="fn">Area</span>() <span class="ty">float64</span>
+    <span class="fn">Perimeter</span>() <span class="ty">float64</span>
+}
+
+<span class="kw">type</span> Circle <span class="kw">struct</span> { R <span class="ty">float64</span> }
+
+<span class="kw">func</span> (c Circle) <span class="fn">Area</span>() <span class="ty">float64</span>      { <span class="kw">return</span> <span class="num">3.14</span> * c.R * c.R }
+<span class="kw">func</span> (c Circle) <span class="fn">Perimeter</span>() <span class="ty">float64</span> { <span class="kw">return</span> <span class="num">2</span> * <span class="num">3.14</span> * c.R }
+
+<span class="com">// Circle implicitly satisfies Shape — no declaration needed</span>
+<span class="kw">var</span> s Shape = Circle{R: <span class="num">5</span>}
+<span class="pn">fmt</span>.<span class="fn">Println</span>(s.<span class="fn">Area</span>())</code></pre>
+
+  <h3>The Empty Interface</h3>
+  <p>Any type satisfies <code>interface{}</code>. Since Go 1.18, <code>any</code> is an alias for <code>interface{}</code>.</p>
+<pre><code><span class="kw">var</span> i any = <span class="num">42</span>
+i = <span class="str">"hello"</span>
+i = []<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>}</code></pre>
+
+  <h3>Type Assertions</h3>
+<pre><code><span class="kw">var</span> i any = <span class="str">"hello"</span>
+
+s := i.(<span class="ty">string</span>)              <span class="com">// panics if i is not a string</span>
+s, ok := i.(<span class="ty">string</span>)          <span class="com">// safe — ok is false if not</span>
+<span class="kw">if</span> !ok { <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"not string"</span>) }</code></pre>
+
+  <h3>Type Switch</h3>
+<pre><code><span class="kw">func</span> <span class="fn">describe</span>(i any) {
+    <span class="kw">switch</span> v := i.(<span class="kw">type</span>) {
+    <span class="kw">case</span> <span class="ty">int</span>:
+        <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"int: %d\n"</span>, v)
+    <span class="kw">case</span> <span class="ty">string</span>:
+        <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"string of len %d\n"</span>, <span class="kw">len</span>(v))
+    <span class="kw">case</span> <span class="kw">nil</span>:
+        <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"nil"</span>)
+    <span class="kw">default</span>:
+        <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"unknown type %T\n"</span>, v)
+    }
+}</code></pre>
+
+  <h3>Interface Composition</h3>
+<pre><code><span class="kw">type</span> Reader <span class="kw">interface</span> { <span class="fn">Read</span>(p []<span class="ty">byte</span>) (<span class="ty">int</span>, <span class="ty">error</span>) }
+<span class="kw">type</span> Writer <span class="kw">interface</span> { <span class="fn">Write</span>(p []<span class="ty">byte</span>) (<span class="ty">int</span>, <span class="ty">error</span>) }
+
+<span class="kw">type</span> ReadWriter <span class="kw">interface</span> {
+    Reader
+    Writer
+}</code></pre>
+
+  <h3>The Stringer Interface</h3>
+<pre><code><span class="kw">type</span> Stringer <span class="kw">interface</span> {
+    <span class="fn">String</span>() <span class="ty">string</span>
+}
+
+<span class="kw">type</span> User <span class="kw">struct</span> { Name <span class="ty">string</span>; Age <span class="ty">int</span> }
+<span class="kw">func</span> (u User) <span class="fn">String</span>() <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="pn">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"%s (%d)"</span>, u.Name, u.Age)
+}
+
+<span class="com">// fmt.Println recognizes Stringer automatically</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(User{<span class="str">"Ana"</span>, <span class="num">25</span>})  <span class="com">// "Ana (25)"</span></code></pre>
+
+  <h3>Nil Interfaces</h3>
+  <div class="warn">An interface value is nil only when both its <strong>type</strong> and <strong>value</strong> are nil. A common gotcha: a non-nil interface holding a nil pointer is <strong>not</strong> nil.</div>
+<pre><code><span class="kw">var</span> p *<span class="ty">int</span> = <span class="kw">nil</span>
+<span class="kw">var</span> i any = p
+<span class="pn">fmt</span>.<span class="fn">Println</span>(i == <span class="kw">nil</span>)   <span class="com">// false! interface holds (*int, nil)</span></code></pre>
+</section>
+
+<!-- 17. ERRORS -->
+<section id="errors">
+  <div class="section-num">17 / 32</div>
+  <h2>Error <span class="accent">Handling</span></h2>
+  <p class="section-lead">Go has no exceptions. Errors are values returned from functions, just like anything else. The convention: the last return value is an <code>error</code>.</p>
+
+  <h3>The error Interface</h3>
+<pre><code><span class="kw">type</span> error <span class="kw">interface</span> {
+    <span class="fn">Error</span>() <span class="ty">string</span>
+}</code></pre>
+
+  <h3>Returning Errors</h3>
+<pre><code><span class="kw">import</span> <span class="str">"errors"</span>
+
+<span class="kw">func</span> <span class="fn">divide</span>(a, b <span class="ty">float64</span>) (<span class="ty">float64</span>, <span class="ty">error</span>) {
+    <span class="kw">if</span> b == <span class="num">0</span> {
+        <span class="kw">return</span> <span class="num">0</span>, <span class="pn">errors</span>.<span class="fn">New</span>(<span class="str">"division by zero"</span>)
+    }
+    <span class="kw">return</span> a / b, <span class="kw">nil</span>
+}
+
+result, err := <span class="fn">divide</span>(<span class="num">10</span>, <span class="num">0</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"error:"</span>, err)
+    <span class="kw">return</span>
+}</code></pre>
+
+  <h3>fmt.Errorf and Wrapping</h3>
+<pre><code>err := <span class="pn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"failed to read %s: %w"</span>, file, baseErr)
+<span class="com">// %w wraps baseErr — preserves the error chain</span>
+
+<span class="com">// Unwrap with errors.Is and errors.As</span>
+<span class="kw">if</span> <span class="pn">errors</span>.<span class="fn">Is</span>(err, <span class="pn">os</span>.ErrNotExist) { ... }
+
+<span class="kw">var</span> pathErr *<span class="pn">os</span>.PathError
+<span class="kw">if</span> <span class="pn">errors</span>.<span class="fn">As</span>(err, &amp;pathErr) {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(pathErr.Path)
+}</code></pre>
+
+  <h3>Custom Error Types</h3>
+<pre><code><span class="kw">type</span> ValidationError <span class="kw">struct</span> {
+    Field <span class="ty">string</span>
+    Msg   <span class="ty">string</span>
+}
+
+<span class="kw">func</span> (e *ValidationError) <span class="fn">Error</span>() <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="pn">fmt</span>.<span class="fn">Sprintf</span>(<span class="str">"%s: %s"</span>, e.Field, e.Msg)
+}
+
+<span class="kw">func</span> <span class="fn">checkAge</span>(age <span class="ty">int</span>) <span class="ty">error</span> {
+    <span class="kw">if</span> age &lt; <span class="num">0</span> {
+        <span class="kw">return</span> &amp;ValidationError{<span class="str">"age"</span>, <span class="str">"must be non-negative"</span>}
+    }
+    <span class="kw">return</span> <span class="kw">nil</span>
+}</code></pre>
+
+  <h3>Sentinel Errors</h3>
+<pre><code><span class="kw">var</span> ErrNotFound = <span class="pn">errors</span>.<span class="fn">New</span>(<span class="str">"not found"</span>)
+
+<span class="kw">if</span> <span class="pn">errors</span>.<span class="fn">Is</span>(err, ErrNotFound) { ... }</code></pre>
+
+  <h3>The Idiomatic Pattern</h3>
+<pre><code>f, err := <span class="pn">os</span>.<span class="fn">Open</span>(<span class="str">"file.txt"</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> {
+    <span class="kw">return</span> <span class="pn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"open file: %w"</span>, err)
+}
+<span class="kw">defer</span> f.<span class="fn">Close</span>()</code></pre>
+</section>
+
+<!-- 18. PANIC, DEFER, RECOVER -->
+<section id="panic">
+  <div class="section-num">18 / 32</div>
+  <h2>Panic, Defer, <span class="accent">Recover</span></h2>
+  <p class="section-lead">For truly exceptional, programmer-error cases, Go has <code>panic</code>. For cleanup, <code>defer</code>. To intercept a panic, <code>recover</code>. Use these sparingly — errors should still be the default.</p>
+
+  <h3>defer</h3>
+  <p>Schedules a call to run when the surrounding function returns. Defers run in <strong>LIFO</strong> order.</p>
+<pre><code><span class="kw">func</span> <span class="fn">demo</span>() {
+    <span class="kw">defer</span> <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"1 — runs last"</span>)
+    <span class="kw">defer</span> <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"2"</span>)
+    <span class="kw">defer</span> <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"3 — runs first"</span>)
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"body"</span>)
+}
+<span class="com">// Output:
+// body
+// 3 — runs first
+// 2
+// 1 — runs last</span></code></pre>
+
+  <div class="tip">Arguments to a deferred call are evaluated <strong>at the defer statement</strong>, not when the deferred function actually runs.</div>
+<pre><code>i := <span class="num">10</span>
+<span class="kw">defer</span> <span class="pn">fmt</span>.<span class="fn">Println</span>(i)   <span class="com">// captures 10 right now</span>
+i = <span class="num">20</span>
+<span class="com">// Prints 10, not 20</span></code></pre>
+
+  <h3>panic</h3>
+<pre><code><span class="kw">func</span> <span class="fn">mustOpen</span>(name <span class="ty">string</span>) *<span class="pn">os</span>.File {
+    f, err := <span class="pn">os</span>.<span class="fn">Open</span>(name)
+    <span class="kw">if</span> err != <span class="kw">nil</span> {
+        <span class="kw">panic</span>(err)
+    }
+    <span class="kw">return</span> f
+}</code></pre>
+  <p>A panic stops normal execution: deferred functions still run, then the program crashes with a stack trace.</p>
+
+  <h3>recover</h3>
+  <p>Stops a panic. Only useful inside a deferred function.</p>
+<pre><code><span class="kw">func</span> <span class="fn">safeDivide</span>(a, b <span class="ty">int</span>) (result <span class="ty">int</span>, err <span class="ty">error</span>) {
+    <span class="kw">defer</span> <span class="kw">func</span>() {
+        <span class="kw">if</span> r := <span class="kw">recover</span>(); r != <span class="kw">nil</span> {
+            err = <span class="pn">fmt</span>.<span class="fn">Errorf</span>(<span class="str">"recovered: %v"</span>, r)
+        }
+    }()
+    <span class="kw">return</span> a / b, <span class="kw">nil</span>     <span class="com">// b=0 panics with runtime error</span>
+}</code></pre>
+
+  <div class="warn">Don't use panic/recover for ordinary control flow. Use it for unrecoverable issues (programming bugs, missing required configuration), or to convert a panic into an error at API boundaries.</div>
+</section>
+
+<!-- 19. GOROUTINES -->
+<section id="goroutines">
+  <div class="section-num">19 / 32</div>
+  <h2>Goroutines</h2>
+  <p class="section-lead">A goroutine is a lightweight thread managed by the Go runtime. Starting one costs only a few KB of stack. The <code>go</code> keyword runs any function call as a new goroutine.</p>
+
+  <h3>Starting a Goroutine</h3>
+<pre><code><span class="kw">func</span> <span class="fn">say</span>(msg <span class="ty">string</span>) {
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">3</span>; i++ {
+        <span class="pn">fmt</span>.<span class="fn">Println</span>(msg, i)
+    }
+}
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="kw">go</span> <span class="fn">say</span>(<span class="str">"hello"</span>)   <span class="com">// runs concurrently</span>
+    <span class="fn">say</span>(<span class="str">"world"</span>)
+}</code></pre>
+
+  <div class="warn">When <code>main</code> returns, all goroutines are terminated. You must coordinate with channels or <code>sync.WaitGroup</code>.</div>
+
+  <h3>Anonymous Goroutine</h3>
+<pre><code><span class="kw">go</span> <span class="kw">func</span>(name <span class="ty">string</span>) {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"hi"</span>, name)
+}(<span class="str">"Ana"</span>)</code></pre>
+
+  <h3>Closure Capture Trap</h3>
+<pre><code><span class="com">// Pre-Go-1.22: classic loop variable bug</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">3</span>; i++ {
+    <span class="kw">go</span> <span class="kw">func</span>() { <span class="pn">fmt</span>.<span class="fn">Println</span>(i) }()   <span class="com">// might print 3 3 3</span>
+}
+
+<span class="com">// Fix: pass as parameter</span>
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">3</span>; i++ {
+    <span class="kw">go</span> <span class="kw">func</span>(i <span class="ty">int</span>) { <span class="pn">fmt</span>.<span class="fn">Println</span>(i) }(i)
+}</code></pre>
+  <div class="note">Go 1.22 changed loop semantics so each iteration has its own <code>i</code>, fixing this for new code. The pattern above is still useful for clarity and older Go.</div>
+</section>
+
+<!-- 20. CHANNELS -->
+<section id="channels">
+  <div class="section-num">20 / 32</div>
+  <h2>Channels</h2>
+  <p class="section-lead">Channels are typed conduits for sending and receiving values between goroutines. The Go mantra: <em>don't communicate by sharing memory; share memory by communicating.</em></p>
+
+  <h3>Creating a Channel</h3>
+<pre><code>ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)        <span class="com">// unbuffered</span>
+ch2 := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>, <span class="num">10</span>)  <span class="com">// buffered, capacity 10</span></code></pre>
+
+  <h3>Send & Receive</h3>
+<pre><code>ch &lt;- <span class="num">42</span>          <span class="com">// send</span>
+v := &lt;-ch          <span class="com">// receive</span>
+v, ok := &lt;-ch      <span class="com">// ok = false if channel closed and empty</span>
+<span class="kw">close</span>(ch)          <span class="com">// done sending — only the sender should close</span></code></pre>
+
+  <h3>Unbuffered vs Buffered</h3>
+  <ul>
+    <li><strong>Unbuffered</strong> — send blocks until another goroutine receives. Synchronizes the two.</li>
+    <li><strong>Buffered</strong> — sends fill the buffer; block only when buffer is full. Receives block when buffer empty.</li>
+  </ul>
+
+  <h3>Example — Worker Returning a Result</h3>
+<pre><code><span class="kw">func</span> <span class="fn">main</span>() {
+    ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+
+    <span class="kw">go</span> <span class="kw">func</span>() {
+        ch &lt;- <span class="num">2</span> + <span class="num">3</span>      <span class="com">// send result</span>
+    }()
+
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(&lt;-ch)   <span class="com">// 5</span>
+}</code></pre>
+
+  <h3>Range Over a Channel</h3>
+<pre><code><span class="kw">func</span> <span class="fn">producer</span>(ch <span class="kw">chan</span>&lt;- <span class="ty">int</span>) {
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">5</span>; i++ { ch &lt;- i }
+    <span class="kw">close</span>(ch)
+}
+
+ch := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+<span class="kw">go</span> <span class="fn">producer</span>(ch)
+<span class="kw">for</span> v := <span class="kw">range</span> ch {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(v)
+}</code></pre>
+
+  <h3>Channel Direction</h3>
+<pre><code><span class="kw">func</span> <span class="fn">send</span>(ch <span class="kw">chan</span>&lt;- <span class="ty">int</span>)   { ch &lt;- <span class="num">1</span> }   <span class="com">// send-only</span>
+<span class="kw">func</span> <span class="fn">recv</span>(ch &lt;-<span class="kw">chan</span> <span class="ty">int</span>)   { &lt;-ch }      <span class="com">// receive-only</span></code></pre>
+
+  <h3>select — Multiplex Channels</h3>
+<pre><code><span class="kw">select</span> {
+<span class="kw">case</span> v := &lt;-ch1:
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"from ch1:"</span>, v)
+<span class="kw">case</span> ch2 &lt;- <span class="num">42</span>:
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"sent to ch2"</span>)
+<span class="kw">case</span> &lt;-<span class="pn">time</span>.<span class="fn">After</span>(<span class="num">1</span> * <span class="pn">time</span>.Second):
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"timeout"</span>)
+<span class="kw">default</span>:
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"no channel ready"</span>)
+}</code></pre>
+
+  <h3>Common Patterns</h3>
+<pre><code><span class="com">// Done signal — close to broadcast</span>
+done := <span class="fn">make</span>(<span class="kw">chan</span> <span class="kw">struct</span>{})
+<span class="kw">go</span> <span class="fn">worker</span>(done)
+<span class="kw">close</span>(done)   <span class="com">// every worker receiving from `done` unblocks at once</span>
+
+<span class="com">// Fan-out / fan-in</span>
+results := <span class="fn">make</span>(<span class="kw">chan</span> <span class="ty">int</span>)
+<span class="kw">for</span> _, job := <span class="kw">range</span> jobs {
+    <span class="kw">go</span> <span class="kw">func</span>(j Job) { results &lt;- <span class="fn">process</span>(j) }(job)
+}</code></pre>
+
+  <div class="warn">Sending to or closing a closed channel <strong>panics</strong>. Receiving from a closed channel returns the zero value immediately. Sending to a nil channel blocks forever.</div>
+</section>
+
+<!-- 21. SYNC -->
+<section id="sync">
+  <div class="section-num">21 / 32</div>
+  <h2>The sync <span class="accent">Package</span></h2>
+  <p class="section-lead">When channels aren't the right tool, the <code>sync</code> package provides classic concurrency primitives.</p>
+
+  <h3>sync.WaitGroup</h3>
+  <p>Wait for a collection of goroutines to finish.</p>
+<pre><code><span class="kw">var</span> wg <span class="pn">sync</span>.WaitGroup
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; <span class="num">5</span>; i++ {
+    wg.<span class="fn">Add</span>(<span class="num">1</span>)
+    <span class="kw">go</span> <span class="kw">func</span>(id <span class="ty">int</span>) {
+        <span class="kw">defer</span> wg.<span class="fn">Done</span>()
+        <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"worker"</span>, id)
+    }(i)
+}
+wg.<span class="fn">Wait</span>()</code></pre>
+
+  <h3>sync.Mutex / sync.RWMutex</h3>
+<pre><code><span class="kw">type</span> SafeCounter <span class="kw">struct</span> {
+    mu <span class="pn">sync</span>.Mutex
+    n  <span class="ty">int</span>
+}
+
+<span class="kw">func</span> (s *SafeCounter) <span class="fn">Inc</span>() {
+    s.mu.<span class="fn">Lock</span>()
+    <span class="kw">defer</span> s.mu.<span class="fn">Unlock</span>()
+    s.n++
+}
+
+<span class="com">// RWMutex — many readers OR one writer</span>
+<span class="kw">var</span> rw <span class="pn">sync</span>.RWMutex
+rw.<span class="fn">RLock</span>(); ... ; rw.<span class="fn">RUnlock</span>()
+rw.<span class="fn">Lock</span>();  ... ; rw.<span class="fn">Unlock</span>()</code></pre>
+
+  <h3>sync.Once</h3>
+<pre><code><span class="kw">var</span> once <span class="pn">sync</span>.Once
+once.<span class="fn">Do</span>(<span class="kw">func</span>() {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="str">"runs exactly once across all goroutines"</span>)
+})</code></pre>
+
+  <h3>sync.Map</h3>
+  <p>A concurrent map. Use only when you'd otherwise need a Mutex around a regular map and the access pattern fits (write once, read many).</p>
+<pre><code><span class="kw">var</span> m <span class="pn">sync</span>.Map
+m.<span class="fn">Store</span>(<span class="str">"key"</span>, <span class="num">1</span>)
+v, ok := m.<span class="fn">Load</span>(<span class="str">"key"</span>)
+m.<span class="fn">Delete</span>(<span class="str">"key"</span>)
+m.<span class="fn">Range</span>(<span class="kw">func</span>(k, v any) <span class="ty">bool</span> { <span class="kw">return</span> <span class="kw">true</span> })</code></pre>
+
+  <h3>sync/atomic</h3>
+<pre><code><span class="kw">import</span> <span class="str">"sync/atomic"</span>
+
+<span class="kw">var</span> counter <span class="pn">atomic</span>.Int64
+counter.<span class="fn">Add</span>(<span class="num">1</span>)
+<span class="pn">fmt</span>.<span class="fn">Println</span>(counter.<span class="fn">Load</span>())</code></pre>
+</section>
+
+<!-- 22. CONTEXT -->
+<section id="context">
+  <div class="section-num">22 / 32</div>
+  <h2>Context</h2>
+  <p class="section-lead">The <code>context</code> package carries deadlines, cancellation signals, and request-scoped values across API boundaries and goroutines. It is the standard way to propagate cancellation in Go.</p>
+
+  <h3>Creating Contexts</h3>
+<pre><code><span class="kw">import</span> <span class="str">"context"</span>
+
+ctx := <span class="pn">context</span>.<span class="fn">Background</span>()           <span class="com">// root, never cancels</span>
+ctx = <span class="pn">context</span>.<span class="fn">TODO</span>()                 <span class="com">// placeholder during development</span>
+
+ctx, cancel := <span class="pn">context</span>.<span class="fn">WithCancel</span>(ctx)
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+
+ctx, cancel = <span class="pn">context</span>.<span class="fn">WithTimeout</span>(ctx, <span class="num">2</span> * <span class="pn">time</span>.Second)
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+
+ctx, cancel = <span class="pn">context</span>.<span class="fn">WithDeadline</span>(ctx, <span class="pn">time</span>.<span class="fn">Now</span>().<span class="fn">Add</span>(<span class="num">5</span> * <span class="pn">time</span>.Second))
+<span class="kw">defer</span> <span class="fn">cancel</span>()
+
+ctx = <span class="pn">context</span>.<span class="fn">WithValue</span>(ctx, <span class="str">"userID"</span>, <span class="num">42</span>)</code></pre>
+
+  <h3>Listening for Cancellation</h3>
+<pre><code><span class="kw">func</span> <span class="fn">work</span>(ctx <span class="pn">context</span>.Context) <span class="ty">error</span> {
+    <span class="kw">for</span> {
+        <span class="kw">select</span> {
+        <span class="kw">case</span> &lt;-ctx.<span class="fn">Done</span>():
+            <span class="kw">return</span> ctx.<span class="fn">Err</span>()    <span class="com">// context.Canceled or context.DeadlineExceeded</span>
+        <span class="kw">case</span> v := &lt;-jobs:
+            <span class="fn">handle</span>(v)
+        }
+    }
+}</code></pre>
+
+  <div class="tip">Context is conventionally the <strong>first</strong> parameter of any function that may block: <code>func Foo(ctx context.Context, ...)</code>.</div>
+</section>
+
+<!-- 23. PACKAGES -->
+<section id="packages">
+  <div class="section-num">23 / 32</div>
+  <h2>Packages <span class="accent">& Modules</span></h2>
+  <p class="section-lead">A package is a directory of Go files sharing a <code>package X</code> clause. A module is a collection of related packages versioned together via a <code>go.mod</code> file.</p>
+
+  <h3>Creating a Module</h3>
+<pre><code>$ mkdir myapp &amp;&amp; cd myapp
+$ go mod init github.com/you/myapp
+<span class="com"># Creates go.mod</span></code></pre>
+
+  <h3>go.mod Example</h3>
+<pre><code>module github.com/you/myapp
+
+go 1.22
+
+require (
+    github.com/google/uuid v1.6.0
+    golang.org/x/sync     v0.7.0
+)</code></pre>
+
+  <h3>Importing</h3>
+<pre><code><span class="kw">import</span> (
+    <span class="str">"fmt"</span>                              <span class="com">// stdlib</span>
+    <span class="str">"github.com/google/uuid"</span>           <span class="com">// 3rd party</span>
+    myfmt <span class="str">"github.com/you/pkg/fmt"</span>     <span class="com">// alias</span>
+    . <span class="str">"math"</span>                            <span class="com">// dot import — names directly visible (avoid)</span>
+    _ <span class="str">"github.com/lib/pq"</span>              <span class="com">// blank — runs init() only</span>
+)</code></pre>
+
+  <h3>Common Commands</h3>
+<pre><code>go mod init &lt;path&gt;       <span class="com"># start a module</span>
+go get &lt;pkg&gt;@&lt;ver&gt;        <span class="com"># add/update a dep</span>
+go mod tidy              <span class="com"># add missing, remove unused</span>
+go mod download          <span class="com"># pre-download deps</span>
+go list -m all           <span class="com"># list all modules</span>
+go mod why &lt;pkg&gt;          <span class="com"># explain why a dep is needed</span></code></pre>
+
+  <h3>Internal Packages</h3>
+  <p>Packages under a directory called <code>internal/</code> can only be imported by code in the parent of that <code>internal</code> directory.</p>
+
+  <h3>Workspaces (Go 1.18+)</h3>
+<pre><code>$ go work init ./moduleA ./moduleB
+<span class="com"># Creates go.work — develop multiple modules together locally</span></code></pre>
+</section>
+
+<!-- 24. GENERICS -->
+<section id="generics">
+  <div class="section-num">24 / 32</div>
+  <h2>Generics</h2>
+  <p class="section-lead">Generics (introduced in Go 1.18) let functions and types operate on any of a set of types — using type parameters and constraints.</p>
+
+  <h3>Generic Function</h3>
+<pre><code><span class="com">// T is a type parameter; "any" is the constraint (no restriction)</span>
+<span class="kw">func</span> <span class="fn">Map</span>[T, U any](s []T, f <span class="kw">func</span>(T) U) []U {
+    out := <span class="fn">make</span>([]U, <span class="kw">len</span>(s))
+    <span class="kw">for</span> i, v := <span class="kw">range</span> s { out[i] = <span class="fn">f</span>(v) }
+    <span class="kw">return</span> out
+}
+
+doubled := <span class="fn">Map</span>([]<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>}, <span class="kw">func</span>(x <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> x*<span class="num">2</span> })
+words   := <span class="fn">Map</span>([]<span class="ty">int</span>{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>}, <span class="pn">strconv</span>.Itoa)</code></pre>
+
+  <h3>Type Constraints</h3>
+<pre><code><span class="com">// Constraint = an interface listing the allowed types or required methods</span>
+<span class="kw">type</span> Number <span class="kw">interface</span> {
+    ~<span class="ty">int</span> | ~<span class="ty">int64</span> | ~<span class="ty">float64</span>     <span class="com">// ~T means "any type whose underlying type is T"</span>
+}
+
+<span class="kw">func</span> <span class="fn">Sum</span>[T Number](xs []T) T {
+    <span class="kw">var</span> total T
+    <span class="kw">for</span> _, x := <span class="kw">range</span> xs { total += x }
+    <span class="kw">return</span> total
+}</code></pre>
+
+  <h3>Built-in Constraints</h3>
+<pre><code><span class="kw">import</span> <span class="str">"cmp"</span>
+<span class="kw">import</span> <span class="str">"slices"</span>
+
+<span class="com">// "comparable" — types that support == and !=</span>
+<span class="kw">func</span> <span class="fn">Equal</span>[T comparable](a, b T) <span class="ty">bool</span> { <span class="kw">return</span> a == b }
+
+<span class="com">// cmp.Ordered — anything that supports &lt; &lt;= &gt; &gt;=</span>
+<span class="kw">func</span> <span class="fn">Min</span>[T <span class="pn">cmp</span>.Ordered](a, b T) T {
+    <span class="kw">if</span> a &lt; b { <span class="kw">return</span> a }
+    <span class="kw">return</span> b
+}</code></pre>
+
+  <h3>Generic Types</h3>
+<pre><code><span class="kw">type</span> Stack[T any] <span class="kw">struct</span> {
+    data []T
+}
+
+<span class="kw">func</span> (s *Stack[T]) <span class="fn">Push</span>(v T)    { s.data = <span class="fn">append</span>(s.data, v) }
+<span class="kw">func</span> (s *Stack[T]) <span class="fn">Pop</span>() (T, <span class="ty">bool</span>) {
+    <span class="kw">if</span> <span class="kw">len</span>(s.data) == <span class="num">0</span> { <span class="kw">var</span> z T; <span class="kw">return</span> z, <span class="kw">false</span> }
+    n := <span class="kw">len</span>(s.data) - <span class="num">1</span>
+    v := s.data[n]
+    s.data = s.data[:n]
+    <span class="kw">return</span> v, <span class="kw">true</span>
+}
+
+s := &amp;Stack[<span class="ty">string</span>]{}
+s.<span class="fn">Push</span>(<span class="str">"go"</span>)</code></pre>
+</section>
+
+<!-- 25. REFLECTION -->
+<section id="reflection">
+  <div class="section-num">25 / 32</div>
+  <h2>Reflection</h2>
+  <p class="section-lead">The <code>reflect</code> package lets a program inspect types and values at runtime. Powerful, but slow and verbose — use only when you cannot solve the problem with interfaces or generics.</p>
+
+  <h3>Basic Inspection</h3>
+<pre><code><span class="kw">import</span> <span class="str">"reflect"</span>
+
+<span class="kw">var</span> x = <span class="num">3.14</span>
+t := <span class="pn">reflect</span>.<span class="fn">TypeOf</span>(x)     <span class="com">// float64</span>
+v := <span class="pn">reflect</span>.<span class="fn">ValueOf</span>(x)    <span class="com">// 3.14</span>
+
+<span class="pn">fmt</span>.<span class="fn">Println</span>(t.<span class="fn">Kind</span>())     <span class="com">// float64</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(v.<span class="fn">Float</span>())    <span class="com">// 3.14</span></code></pre>
+
+  <h3>Modifying via Reflection</h3>
+<pre><code>x := <span class="num">10</span>
+v := <span class="pn">reflect</span>.<span class="fn">ValueOf</span>(&amp;x).<span class="fn">Elem</span>()    <span class="com">// pointer is required</span>
+v.<span class="fn">SetInt</span>(<span class="num">99</span>)
+<span class="pn">fmt</span>.<span class="fn">Println</span>(x)   <span class="com">// 99</span></code></pre>
+
+  <h3>Walking Struct Fields</h3>
+<pre><code><span class="kw">type</span> User <span class="kw">struct</span> {
+    Name <span class="ty">string</span> <span class="str">`json:"name"`</span>
+    Age  <span class="ty">int</span>
+}
+
+u := User{<span class="str">"Ana"</span>, <span class="num">30</span>}
+t := <span class="pn">reflect</span>.<span class="fn">TypeOf</span>(u)
+v := <span class="pn">reflect</span>.<span class="fn">ValueOf</span>(u)
+
+<span class="kw">for</span> i := <span class="num">0</span>; i &lt; t.<span class="fn">NumField</span>(); i++ {
+    f := t.<span class="fn">Field</span>(i)
+    <span class="pn">fmt</span>.<span class="fn">Printf</span>(<span class="str">"%s (%s, tag=%s) = %v\n"</span>,
+        f.Name, f.Type, f.Tag.<span class="fn">Get</span>(<span class="str">"json"</span>), v.<span class="fn">Field</span>(i))
+}</code></pre>
+</section>
+
+<!-- 26. TESTING -->
+<section id="testing">
+  <div class="section-num">26 / 32</div>
+  <h2>Testing</h2>
+  <p class="section-lead">Go ships with a built-in testing framework. Tests live in files ending <code>_test.go</code> and use the <code>testing</code> package.</p>
+
+  <h3>Basic Test</h3>
+<pre><code><span class="com">// math.go</span>
+<span class="kw">package</span> mathx
+<span class="kw">func</span> <span class="fn">Add</span>(a, b <span class="ty">int</span>) <span class="ty">int</span> { <span class="kw">return</span> a + b }
+
+<span class="com">// math_test.go</span>
+<span class="kw">package</span> mathx
+
+<span class="kw">import</span> <span class="str">"testing"</span>
+
+<span class="kw">func</span> <span class="fn">TestAdd</span>(t *<span class="pn">testing</span>.T) {
+    got := <span class="fn">Add</span>(<span class="num">2</span>, <span class="num">3</span>)
+    <span class="kw">if</span> got != <span class="num">5</span> {
+        t.<span class="fn">Errorf</span>(<span class="str">"Add(2,3) = %d, want 5"</span>, got)
+    }
+}</code></pre>
+
+  <h3>Table-Driven Tests (Idiomatic)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">TestAdd</span>(t *<span class="pn">testing</span>.T) {
+    tests := []<span class="kw">struct</span>{
+        name string
+        a, b, want <span class="ty">int</span>
+    }{
+        {<span class="str">"both positive"</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>},
+        {<span class="str">"with zero"</span>,    <span class="num">0</span>, <span class="num">5</span>, <span class="num">5</span>},
+        {<span class="str">"negative"</span>,    -<span class="num">1</span>,-<span class="num">1</span>,-<span class="num">2</span>},
+    }
+    <span class="kw">for</span> _, tc := <span class="kw">range</span> tests {
+        t.<span class="fn">Run</span>(tc.name, <span class="kw">func</span>(t *<span class="pn">testing</span>.T) {
+            <span class="kw">if</span> got := <span class="fn">Add</span>(tc.a, tc.b); got != tc.want {
+                t.<span class="fn">Errorf</span>(<span class="str">"got %d, want %d"</span>, got, tc.want)
+            }
+        })
+    }
+}</code></pre>
+
+  <h3>Benchmarks</h3>
+<pre><code><span class="kw">func</span> <span class="fn">BenchmarkAdd</span>(b *<span class="pn">testing</span>.B) {
+    <span class="kw">for</span> i := <span class="num">0</span>; i &lt; b.N; i++ {
+        <span class="fn">Add</span>(<span class="num">2</span>, <span class="num">3</span>)
+    }
+}
+<span class="com">// $ go test -bench=.</span></code></pre>
+
+  <h3>Examples (Documented & Verified)</h3>
+<pre><code><span class="kw">func</span> <span class="fn">ExampleAdd</span>() {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="fn">Add</span>(<span class="num">2</span>, <span class="num">3</span>))
+    <span class="com">// Output: 5</span>
+}</code></pre>
+
+  <h3>Useful Commands</h3>
+<pre><code>go test                 <span class="com"># run tests in current package</span>
+go test ./...           <span class="com"># run all in module</span>
+go test -v              <span class="com"># verbose</span>
+go test -run TestAdd    <span class="com"># filter by name</span>
+go test -cover          <span class="com"># coverage</span>
+go test -race           <span class="com"># enable race detector</span>
+go test -bench=. -benchmem</code></pre>
+</section>
+
+<!-- 27. STDLIB TOUR -->
+<section id="stdlib">
+  <div class="section-num">27 / 32</div>
+  <h2>Standard Library <span class="accent">Tour</span></h2>
+  <p class="section-lead">Go's standard library is famously good. A few essentials beyond what we've seen:</p>
+
+  <h3>time</h3>
+<pre><code>now := <span class="pn">time</span>.<span class="fn">Now</span>()
+later := now.<span class="fn">Add</span>(<span class="num">2</span> * <span class="pn">time</span>.Hour)
+diff := later.<span class="fn">Sub</span>(now)            <span class="com">// time.Duration</span>
+<span class="pn">fmt</span>.<span class="fn">Println</span>(now.<span class="fn">Format</span>(<span class="pn">time</span>.RFC3339))
+t, _ := <span class="pn">time</span>.<span class="fn">Parse</span>(<span class="str">"2006-01-02"</span>, <span class="str">"2025-01-15"</span>)
+<span class="pn">time</span>.<span class="fn">Sleep</span>(<span class="num">100</span> * <span class="pn">time</span>.Millisecond)</code></pre>
+  <div class="note">Go's time format uses the reference time <code>Mon Jan 2 15:04:05 MST 2006</code> as a literal — not <code>YYYY-MM-DD</code>.</div>
+
+  <h3>math & math/rand</h3>
+<pre><code><span class="pn">math</span>.<span class="fn">Sqrt</span>(<span class="num">16</span>); <span class="pn">math</span>.<span class="fn">Pow</span>(<span class="num">2</span>, <span class="num">10</span>); <span class="pn">math</span>.<span class="fn">Pi</span>
+<span class="pn">rand</span>.<span class="fn">IntN</span>(<span class="num">100</span>)               <span class="com">// 0..99 (math/rand/v2 since Go 1.22)</span>
+<span class="pn">rand</span>.<span class="fn">Float64</span>()</code></pre>
+
+  <h3>sort & slices</h3>
+<pre><code><span class="pn">sort</span>.<span class="fn">Ints</span>([]<span class="ty">int</span>{<span class="num">3</span>,<span class="num">1</span>,<span class="num">2</span>})
+<span class="pn">sort</span>.<span class="fn">Strings</span>([]<span class="ty">string</span>{<span class="str">"b"</span>,<span class="str">"a"</span>})
+<span class="pn">sort</span>.<span class="fn">Slice</span>(users, <span class="kw">func</span>(i, j <span class="ty">int</span>) <span class="ty">bool</span> { <span class="kw">return</span> users[i].Age &lt; users[j].Age })
+
+<span class="com">// Go 1.21+ generic helpers</span>
+<span class="pn">slices</span>.<span class="fn">Sort</span>(nums)
+<span class="pn">slices</span>.<span class="fn">Contains</span>(nums, <span class="num">5</span>)
+<span class="pn">slices</span>.<span class="fn">Reverse</span>(nums)
+<span class="pn">maps</span>.<span class="fn">Keys</span>(m)</code></pre>
+
+  <h3>regexp</h3>
+<pre><code>re := <span class="pn">regexp</span>.<span class="fn">MustCompile</span>(<span class="str">`\d+`</span>)
+re.<span class="fn">FindString</span>(<span class="str">"abc 123 xyz"</span>)        <span class="com">// "123"</span>
+re.<span class="fn">FindAllString</span>(<span class="str">"a 1 b 2"</span>, -<span class="num">1</span>)     <span class="com">// ["1","2"]</span>
+re.<span class="fn">ReplaceAllString</span>(<span class="str">"a1b2"</span>, <span class="str">"#"</span>)    <span class="com">// "a#b#"</span></code></pre>
+
+  <h3>os</h3>
+<pre><code><span class="pn">os</span>.Args                       <span class="com">// command-line args</span>
+<span class="pn">os</span>.<span class="fn">Getenv</span>(<span class="str">"PATH"</span>)
+<span class="pn">os</span>.<span class="fn">Setenv</span>(<span class="str">"FOO"</span>, <span class="str">"1"</span>)
+<span class="pn">os</span>.<span class="fn">Exit</span>(<span class="num">1</span>)</code></pre>
+</section>
+
+<!-- 28. FILES -->
+<section id="files">
+  <div class="section-num">28 / 32</div>
+  <h2>File <span class="accent">I/O</span></h2>
+
+  <h3>Whole-File Read / Write</h3>
+<pre><code>data, err := <span class="pn">os</span>.<span class="fn">ReadFile</span>(<span class="str">"input.txt"</span>)
+err = <span class="pn">os</span>.<span class="fn">WriteFile</span>(<span class="str">"out.txt"</span>, data, <span class="num">0644</span>)</code></pre>
+
+  <h3>Streaming a File</h3>
+<pre><code>f, err := <span class="pn">os</span>.<span class="fn">Open</span>(<span class="str">"big.txt"</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> err }
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+
+scanner := <span class="pn">bufio</span>.<span class="fn">NewScanner</span>(f)
+<span class="kw">for</span> scanner.<span class="fn">Scan</span>() {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(scanner.<span class="fn">Text</span>())
+}</code></pre>
+
+  <h3>Writing</h3>
+<pre><code>f, err := <span class="pn">os</span>.<span class="fn">Create</span>(<span class="str">"out.txt"</span>)
+<span class="kw">defer</span> f.<span class="fn">Close</span>()
+w := <span class="pn">bufio</span>.<span class="fn">NewWriter</span>(f)
+w.<span class="fn">WriteString</span>(<span class="str">"hello\n"</span>)
+w.<span class="fn">Flush</span>()
+
+<span class="com">// Append</span>
+f, _ := <span class="pn">os</span>.<span class="fn">OpenFile</span>(<span class="str">"log"</span>, <span class="pn">os</span>.O_APPEND|<span class="pn">os</span>.O_CREATE|<span class="pn">os</span>.O_WRONLY, <span class="num">0644</span>)</code></pre>
+
+  <h3>Directories</h3>
+<pre><code><span class="pn">os</span>.<span class="fn">Mkdir</span>(<span class="str">"data"</span>, <span class="num">0755</span>)
+<span class="pn">os</span>.<span class="fn">MkdirAll</span>(<span class="str">"a/b/c"</span>, <span class="num">0755</span>)
+entries, _ := <span class="pn">os</span>.<span class="fn">ReadDir</span>(<span class="str">"."</span>)
+<span class="kw">for</span> _, e := <span class="kw">range</span> entries {
+    <span class="pn">fmt</span>.<span class="fn">Println</span>(e.<span class="fn">Name</span>(), e.<span class="fn">IsDir</span>())
+}
+<span class="pn">os</span>.<span class="fn">Remove</span>(<span class="str">"file"</span>); <span class="pn">os</span>.<span class="fn">RemoveAll</span>(<span class="str">"dir"</span>)</code></pre>
+</section>
+
+<!-- 29. JSON -->
+<section id="json">
+  <div class="section-num">29 / 32</div>
+  <h2>JSON <span class="accent">& Encoding</span></h2>
+
+  <h3>Marshal & Unmarshal</h3>
+<pre><code><span class="kw">import</span> <span class="str">"encoding/json"</span>
+
+<span class="kw">type</span> User <span class="kw">struct</span> {
+    Name  <span class="ty">string</span> <span class="str">`json:"name"`</span>
+    Email <span class="ty">string</span> <span class="str">`json:"email,omitempty"`</span>
+    Age   <span class="ty">int</span>    <span class="str">`json:"-"`</span>          <span class="com">// never serialized</span>
+}
+
+u := User{Name: <span class="str">"Ana"</span>, Email: <span class="str">"a@x.com"</span>}
+b, _ := <span class="pn">json</span>.<span class="fn">Marshal</span>(u)
+<span class="pn">fmt</span>.<span class="fn">Println</span>(<span class="ty">string</span>(b))   <span class="com">// {"name":"Ana","email":"a@x.com"}</span>
+
+<span class="com">// Pretty</span>
+b, _ = <span class="pn">json</span>.<span class="fn">MarshalIndent</span>(u, <span class="str">""</span>, <span class="str">"  "</span>)
+
+<span class="com">// Unmarshal</span>
+<span class="kw">var</span> u2 User
+<span class="pn">json</span>.<span class="fn">Unmarshal</span>(b, &amp;u2)</code></pre>
+
+  <h3>Stream Encoding</h3>
+<pre><code>enc := <span class="pn">json</span>.<span class="fn">NewEncoder</span>(<span class="pn">os</span>.Stdout)
+enc.<span class="fn">SetIndent</span>(<span class="str">""</span>, <span class="str">"  "</span>)
+enc.<span class="fn">Encode</span>(u)
+
+dec := <span class="pn">json</span>.<span class="fn">NewDecoder</span>(<span class="pn">os</span>.Stdin)
+<span class="kw">var</span> in User
+dec.<span class="fn">Decode</span>(&amp;in)</code></pre>
+
+  <h3>Working with Unknown Shape</h3>
+<pre><code><span class="com">// map[string]any handles arbitrary JSON</span>
+<span class="kw">var</span> data <span class="kw">map</span>[<span class="ty">string</span>]any
+<span class="pn">json</span>.<span class="fn">Unmarshal</span>(b, &amp;data)
+<span class="pn">fmt</span>.<span class="fn">Println</span>(data[<span class="str">"name"</span>])</code></pre>
+
+  <div class="note">Other encodings work the same way: <code>encoding/xml</code>, <code>encoding/csv</code>, <code>encoding/gob</code>, <code>encoding/base64</code>, <code>encoding/hex</code>.</div>
+</section>
+
+<!-- 30. HTTP -->
+<section id="http">
+  <div class="section-num">30 / 32</div>
+  <h2>HTTP <span class="accent">& Web</span></h2>
+  <p class="section-lead">The <code>net/http</code> package gives you a production-grade HTTP client and server out of the box.</p>
+
+  <h3>HTTP Server (Hello World)</h3>
+<pre><code><span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="str">"fmt"</span>
+    <span class="str">"net/http"</span>
+)
+
+<span class="kw">func</span> <span class="fn">main</span>() {
+    <span class="pn">http</span>.<span class="fn">HandleFunc</span>(<span class="str">"/"</span>, <span class="kw">func</span>(w <span class="pn">http</span>.ResponseWriter, r *<span class="pn">http</span>.Request) {
+        <span class="pn">fmt</span>.<span class="fn">Fprintf</span>(w, <span class="str">"Hello, %s!"</span>, r.URL.Path[<span class="num">1</span>:])
+    })
+    <span class="pn">http</span>.<span class="fn">ListenAndServe</span>(<span class="str">":8080"</span>, <span class="kw">nil</span>)
+}</code></pre>
+
+  <h3>Method-Aware Routing (Go 1.22+)</h3>
+<pre><code>mux := <span class="pn">http</span>.<span class="fn">NewServeMux</span>()
+mux.<span class="fn">HandleFunc</span>(<span class="str">"GET /users/{id}"</span>, <span class="kw">func</span>(w <span class="pn">http</span>.ResponseWriter, r *<span class="pn">http</span>.Request) {
+    id := r.<span class="fn">PathValue</span>(<span class="str">"id"</span>)
+    <span class="pn">fmt</span>.<span class="fn">Fprintln</span>(w, <span class="str">"user"</span>, id)
+})
+mux.<span class="fn">HandleFunc</span>(<span class="str">"POST /users"</span>, createUser)
+<span class="pn">http</span>.<span class="fn">ListenAndServe</span>(<span class="str">":8080"</span>, mux)</code></pre>
+
+  <h3>JSON API Endpoint</h3>
+<pre><code><span class="kw">func</span> <span class="fn">getUser</span>(w <span class="pn">http</span>.ResponseWriter, r *<span class="pn">http</span>.Request) {
+    u := User{Name: <span class="str">"Ana"</span>, Age: <span class="num">25</span>}
+    w.<span class="fn">Header</span>().<span class="fn">Set</span>(<span class="str">"Content-Type"</span>, <span class="str">"application/json"</span>)
+    <span class="pn">json</span>.<span class="fn">NewEncoder</span>(w).<span class="fn">Encode</span>(u)
+}</code></pre>
+
+  <h3>HTTP Client</h3>
+<pre><code>resp, err := <span class="pn">http</span>.<span class="fn">Get</span>(<span class="str">"https://api.example.com/users/1"</span>)
+<span class="kw">if</span> err != <span class="kw">nil</span> { <span class="kw">return</span> err }
+<span class="kw">defer</span> resp.Body.<span class="fn">Close</span>()
+body, _ := <span class="pn">io</span>.<span class="fn">ReadAll</span>(resp.Body)
+
+<span class="com">// POST JSON</span>
+data, _ := <span class="pn">json</span>.<span class="fn">Marshal</span>(payload)
+resp, _ = <span class="pn">http</span>.<span class="fn">Post</span>(url, <span class="str">"application/json"</span>, <span class="pn">bytes</span>.<span class="fn">NewReader</span>(data))
+
+<span class="com">// Custom request</span>
+req, _ := <span class="pn">http</span>.<span class="fn">NewRequestWithContext</span>(ctx, <span class="str">"GET"</span>, url, <span class="kw">nil</span>)
+req.<span class="fn">Header</span>.<span class="fn">Set</span>(<span class="str">"Authorization"</span>, <span class="str">"Bearer "</span>+token)
+client := &amp;<span class="pn">http</span>.Client{Timeout: <span class="num">5</span> * <span class="pn">time</span>.Second}
+resp, _ = client.<span class="fn">Do</span>(req)</code></pre>
+
+  <h3>Middleware Pattern</h3>
+<pre><code><span class="kw">func</span> <span class="fn">logging</span>(next <span class="pn">http</span>.Handler) <span class="pn">http</span>.Handler {
+    <span class="kw">return</span> <span class="pn">http</span>.<span class="fn">HandlerFunc</span>(<span class="kw">func</span>(w <span class="pn">http</span>.ResponseWriter, r *<span class="pn">http</span>.Request) {
+        start := <span class="pn">time</span>.<span class="fn">Now</span>()
+        next.<span class="fn">ServeHTTP</span>(w, r)
+        <span class="pn">log</span>.<span class="fn">Printf</span>(<span class="str">"%s %s %v"</span>, r.Method, r.URL.Path, <span class="pn">time</span>.<span class="fn">Since</span>(start))
+    })
+}
+
+<span class="pn">http</span>.<span class="fn">ListenAndServe</span>(<span class="str">":8080"</span>, <span class="fn">logging</span>(mux))</code></pre>
+</section>
+
+<!-- 31. TOOLING -->
+<section id="tools">
+  <div class="section-num">31 / 32</div>
+  <h2>Go <span class="accent">Tooling</span></h2>
+  <p class="section-lead">A summary of the commands you'll use daily, plus a few hidden gems.</p>
+  <table>
+    <tr><th>Command</th><th>Use</th></tr>
+    <tr><td><code>go run file.go</code></td><td>Compile + run, no binary kept</td></tr>
+    <tr><td><code>go build</code></td><td>Build binary in current directory</td></tr>
+    <tr><td><code>go install ./...</code></td><td>Build and install to <code>$GOBIN</code></td></tr>
+    <tr><td><code>go test ./...</code></td><td>Run all tests</td></tr>
+    <tr><td><code>go test -race ./...</code></td><td>Detect data races</td></tr>
+    <tr><td><code>go test -bench=. -benchmem</code></td><td>Run benchmarks</td></tr>
+    <tr><td><code>go fmt ./...</code></td><td>Format code (gofmt)</td></tr>
+    <tr><td><code>go vet ./...</code></td><td>Static analysis</td></tr>
+    <tr><td><code>go doc fmt.Println</code></td><td>Show docs in terminal</td></tr>
+    <tr><td><code>go mod init / tidy / why</code></td><td>Module management</td></tr>
+    <tr><td><code>go work init / use</code></td><td>Multi-module workspaces</td></tr>
+    <tr><td><code>go env</code></td><td>Inspect/change Go env vars</td></tr>
+    <tr><td><code>go tool pprof</code></td><td>CPU/memory profiling</td></tr>
+    <tr><td><code>GOOS=linux GOARCH=arm64 go build</code></td><td>Cross-compile</td></tr>
+  </table>
+
+  <h3>Build Tags</h3>
+<pre><code><span class="com">//go:build linux &amp;&amp; amd64</span>
+<span class="kw">package</span> mypkg
+<span class="com">// Only compiled on linux/amd64</span></code></pre>
+
+  <h3>go generate</h3>
+<pre><code><span class="com">//go:generate stringer -type=Pill</span>
+<span class="kw">type</span> Pill <span class="ty">int</span>
+<span class="com">// $ go generate ./... runs the directive</span></code></pre>
+</section>
+
+<!-- 32. BEST PRACTICES -->
+<section id="best">
+  <div class="section-num">32 / 32</div>
+  <h2>Best <span class="accent">Practices</span></h2>
+  <p class="section-lead">Idiomatic Go is consistent, simple, and explicit. A few cultural norms worth absorbing:</p>
+
+  <h3>Style</h3>
+  <ul>
+    <li>Always run <code>gofmt</code> (most editors do it on save). There is no debate about formatting.</li>
+    <li>Use <code>camelCase</code> for unexported, <code>PascalCase</code> for exported.</li>
+    <li>Short receiver names: <code>r *Rectangle</code>, not <code>this</code> or <code>self</code>.</li>
+    <li>Acronyms keep their case: <code>ID</code>, <code>URL</code>, <code>HTTP</code> — write <code>userID</code>, not <code>userId</code>.</li>
+  </ul>
+
+  <h3>Errors</h3>
+  <ul>
+    <li>Handle errors at the call site — don't ignore with <code>_</code> unless you really mean it.</li>
+    <li>Wrap context: <code>fmt.Errorf("read config: %w", err)</code>.</li>
+    <li>Don't <code>panic</code> in libraries; return errors.</li>
+    <li>Compare errors with <code>errors.Is</code> / <code>errors.As</code>, not <code>==</code> on strings.</li>
+  </ul>
+
+  <h3>Concurrency</h3>
+  <ul>
+    <li>Don't start a goroutine you can't stop. Pass a <code>context.Context</code>.</li>
+    <li>Prefer channels for communication, mutexes for protecting state.</li>
+    <li>Run <code>go test -race</code> regularly.</li>
+    <li>Never touch a channel from outside the goroutine that owns it (the one that closes it).</li>
+  </ul>
+
+  <h3>API Design</h3>
+  <ul>
+    <li>Accept interfaces, return structs.</li>
+    <li>Make the zero value useful (<code>bytes.Buffer</code>, <code>sync.Mutex</code> work without init).</li>
+    <li>Keep interfaces small — <code>io.Reader</code> has one method.</li>
+    <li>Avoid setters/getters unless they actually do work.</li>
+  </ul>
+
+  <h3>Project Layout</h3>
+<pre><code>myapp/
+├── go.mod
+├── go.sum
+├── cmd/
+│   └── myapp/main.go        <span class="com"># entry point</span>
+├── internal/                 <span class="com"># private packages</span>
+│   ├── api/
+│   └── store/
+├── pkg/                      <span class="com"># exported reusable libs (optional)</span>
+└── api/openapi.yaml          <span class="com"># schemas, configs</span></code></pre>
+
+  <h3>The Go Proverbs (Rob Pike)</h3>
+  <ul>
+    <li>"Don't communicate by sharing memory; share memory by communicating."</li>
+    <li>"Concurrency is not parallelism."</li>
+    <li>"Errors are values."</li>
+    <li>"Don't just check errors, handle them gracefully."</li>
+    <li>"A little copying is better than a little dependency."</li>
+    <li>"Clear is better than clever."</li>
+    <li>"The bigger the interface, the weaker the abstraction."</li>
+  </ul>
+</section>
+
+<footer>
+  END · OF · GUIDE — KEEP · BUILDING
+</footer>
+
+</main>
+</div>
+</body>
+</html>

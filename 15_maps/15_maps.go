@@ -23,7 +23,7 @@
 //
 // VALUE TYPES — anything.
 //
-// COMMON GOTCHA
+// ! COMMON GOTCHA
 //   Cannot do `m[k].field = x` if value is a struct (not addressable).
 //   Reassign whole value: tmp := m[k]; tmp.field = x; m[k] = tmp.
 //

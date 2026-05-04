@@ -43,6 +43,8 @@ func say(msg string, n int) {
 }
 
 func main() {
+
+	// ! 1. sleep
 	// Fire and forget
 	go say("A", 3)
 	go say("B", 3)
@@ -50,18 +52,24 @@ func main() {
 	// Wait so main doesn't exit before goroutines run
 	time.Sleep(3000 * time.Millisecond)
 
-	//! WaitGroup — proper way to wait
+	
+	//!  clouser captures loop variable (pre-1.22) — all see final value
+	// only happens in anonymous functions 
+	// in normal funcion defined :  outside passes current value of i as argument.
+
+	//! 2.  WaitGroup — proper way to wait
 	var wg sync.WaitGroup
 	for i := 0; i < 5; i++ {
 		wg.Add(1)            // increment counter BEFORE starting goroutine
 		go func(id int) {
 			defer wg.Done() // decrement on exit
 			fmt.Println("worker", id)
-		}(i) // pass i as arg to avoid loop-var capture pre-1.22
+		}(i) // ! ABOVE : pass i as arg to avoid loop-var capture pre-1.22
 	}
 	wg.Wait() // block until counter hits 0
 	fmt.Println("all done")
 
+	// ! 3. Channel synchronization
 	// Anonymous goroutine
 	done := make(chan struct{})
 	go func() {
@@ -70,3 +78,4 @@ func main() {
 	}()
 	<-done // wait via channel
 }
+
